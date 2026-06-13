@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    achievements: Achievement;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    achievements: AchievementsSelect<false> | AchievementsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -123,6 +125,14 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  role: 'superadmin' | 'admin' | 'athlete';
+  namaLengkap: string;
+  tempatLahir?: string | null;
+  tanggalLahir?: string | null;
+  jenisKelamin?: ('Laki-laki' | 'Perempuan') | null;
+  nomorTelepon?: string | null;
+  sabuk?: ('Putih' | 'Kuning' | 'Hijau' | 'Biru' | 'Coklat' | 'Hitam') | null;
+  totalPoin?: number | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -148,6 +158,7 @@ export interface User {
  */
 export interface Media {
   id: number;
+  owner: number | User;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -160,6 +171,25 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "achievements".
+ */
+export interface Achievement {
+  id: number;
+  atlet: number | User;
+  namaKejuaraan: string;
+  kategori: string;
+  peringkat: 'Juara 1' | 'Juara 2' | 'Juara 3';
+  tingkatKejuaraan: 'Kabupaten/Kota' | 'Provinsi' | 'Nasional' | 'Internasional';
+  tanggalKejuaraan: string;
+  lokasiKejuaraan?: string | null;
+  sertifikat: number | Media;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  catatanPenolakan?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -192,6 +222,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'achievements';
+        value: number | Achievement;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -240,6 +274,14 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
+  namaLengkap?: T;
+  tempatLahir?: T;
+  tanggalLahir?: T;
+  jenisKelamin?: T;
+  nomorTelepon?: T;
+  sabuk?: T;
+  totalPoin?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -262,6 +304,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  owner?: T;
   alt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -274,6 +317,24 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "achievements_select".
+ */
+export interface AchievementsSelect<T extends boolean = true> {
+  atlet?: T;
+  namaKejuaraan?: T;
+  kategori?: T;
+  peringkat?: T;
+  tingkatKejuaraan?: T;
+  tanggalKejuaraan?: T;
+  lokasiKejuaraan?: T;
+  sertifikat?: T;
+  status?: T;
+  catatanPenolakan?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -7,10 +7,11 @@ export const metadata = {
   description: 'Sistem Manajemen Pengajuan Prestasi',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className="antialiased  text-slate-900" suppressHydrationWarning>
+      <body className="antialiased  text-slate-900">
+        {/* Seluruh page.tsx, termasuk /login dan route groups, akan dirender di dalam children ini */}
         {children}
       </body>
     </html>

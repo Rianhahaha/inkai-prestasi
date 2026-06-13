@@ -1,11 +1,12 @@
 import { getPayload } from 'payload'
 import config from '../../src/payload.config.js'
 
-export const testUser = {
-  email: 'dev@payloadcms.com',
-  password: 'test',
+const testUser = {
+  email: 'test@example.com',
+  password: 'password123',
+  namaLengkap: 'Atlet Uji Coba',
+  role: 'athlete', // Sesuaikan dengan opsi enum role Anda
 }
-
 /**
  * Seeds a test user for e2e admin tests.
  */
@@ -25,7 +26,7 @@ export async function seedTestUser(): Promise<void> {
   // Create fresh test user
   await payload.create({
     collection: 'users',
-    data: testUser,
+    data: testUser as any,
   })
 }
 

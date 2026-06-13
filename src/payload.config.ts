@@ -7,18 +7,24 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Achievements } from './collections/Achievements'
+
+import { s3Storage } from '@payloadcms/storage-s3'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  routes: {
+    admin: '/superadmin',
+  },
   admin: {
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [Users, Media, Achievements],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -30,5 +36,22 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    s3Storage({
+      collections: {
+        // Cukup nyatakan 'true' pada key yang sesuai dengan slug koleksi Media Anda
+        media: true,
+      },
+      bucket: process.env.SUPABASE_S3_BUCKET as string,
+      config: {
+        credentials: {
+          accessKeyId: process.env.SUPABASE_S3_ACCESS_KEY_ID as string,
+          secretAccessKey: process.env.SUPABASE_S3_SECRET_ACCESS_KEY as string,
+        },
+        region: process.env.SUPABASE_S3_REGION as string,
+        endpoint: process.env.SUPABASE_S3_ENDPOINT as string,
+        forcePathStyle: true, // Tetap WAJIB untuk Supabase S3
+      },
+    }),
+  ],
 })

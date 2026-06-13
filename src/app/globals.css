@@ -1,0 +1,15 @@
+/* src/app/globals.css */
+@import "tailwindcss";
+
+/* Anda bisa menambahkan custom utility atau theme variables di bawah sini nanti */
+@theme {
+  --color-primary-blue: #3b82f6;
+  --color-success-green: #22c55e;
+}
+
+@utility card-outline {
+  @apply rounded-xl border border-slate-200 shadow-sm p-6;
+}
+@utility card-title {
+  @apply text-[20px] text-black font-bold mb-4;
+}

@@ -1,22 +1,35 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
-import React from 'react'
-import { fileURLToPath } from 'url'
-
-import config from '@/payload.config'
-import './styles.css'
+import '@/app/globals.css'
 
 export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
+  // const headers = await getHeaders()
+  // const payloadConfig = await config
+  // const payload = await getPayload({ config: payloadConfig })
+  // const { user } = await payload.auth({ headers })
 
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+  // const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
 
   return (
-    <div className="home">
+    <>
+      <div className="h-screen flex flex-col justify-center items-center">
+        <div className="flex flex-col">
+          <div>Login as :</div>
+          <div className="flex flex-col">
+            <a href="/superadmin" className="hover:underline">
+              SuperAdmin
+            </a>
+            <a href="/admin-dashboard" className="hover:underline">
+              Admin
+            </a>
+            <a href="/dashboard" className="hover:underline">
+              User
+            </a>
+          </div>
+        </div>
+        <div className="px-5 py-2 bg-yellow-500/50 rounded-2xl mt-10">
+          commit : MVP user & admin dashboard prestasi flow
+        </div>
+      </div>
+      {/* <div className="home">
       <div className="content">
         <picture>
           <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg" />
@@ -25,7 +38,7 @@ export default async function HomePage() {
             height={65}
             src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg"
             width={65}
-          />
+            />
         </picture>
         {!user && <h1>Welcome to your new project.</h1>}
         {user && <h1>Welcome back, {user.email}</h1>}
@@ -54,6 +67,7 @@ export default async function HomePage() {
           <code>app/(frontend)/page.tsx</code>
         </a>
       </div>
-    </div>
+    </div> */}
+    </>
   )
 }
