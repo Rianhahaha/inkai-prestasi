@@ -26,7 +26,7 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="px-5 py-2 bg-yellow-500/50 rounded-2xl mt-10">
-          commit : MVP user & admin dashboard prestasi flow
+          commit : Admin -dashboard, prestasi, data inject. Athlete -profil
         </div>
       </div>
       {/* <div className="home">

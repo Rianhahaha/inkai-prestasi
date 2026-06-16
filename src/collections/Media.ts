@@ -3,6 +3,19 @@ import { CollectionConfig } from 'payload'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+
+  hooks: {
+    beforeValidate: [
+      ({ req, data }) => {
+        // Jika ada user yang login (admin) dan payload data belum memiliki owner
+        // Otomatis tempelkan ID user tersebut.
+        if (req.user && data) {
+          data.owner = req.user.id
+        }
+        return data
+      },
+    ],
+  },
   access: {
     // Only admins or the owner can read the file
     read: ({ req: { user } }) => {
@@ -22,7 +35,7 @@ export const Media: CollectionConfig = {
     },
     create: ({ req: { user } }) => Boolean(user),
     update: () => false,
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    delete: ({ req: { user } }) => user?.role === 'superadmin' || user?.role === 'admin',
   },
   upload: {
     disableLocalStorage: true, // WAJIB: Mencegah Payload mencoba menulis ke disk lokal server

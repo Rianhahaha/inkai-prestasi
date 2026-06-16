@@ -15,6 +15,15 @@ export default async function UserLayout({ children }: { children: React.ReactNo
     redirect('/login')
   }
 
+  // 2. Bounce privileged roles to their designated zones
+  if (user.role === 'admin') {
+    redirect('/admin-dashboard')
+  }
+
+  if (user.role === 'superadmin') {
+    redirect('/superadmin')
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />

@@ -13,3 +13,6 @@
 @utility card-title {
   @apply text-[20px] text-black font-bold mb-4;
 }
+@utility hovered {
+  @apply transition-all duration-200 ease-in-out
+}

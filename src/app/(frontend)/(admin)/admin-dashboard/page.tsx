@@ -1,16 +1,11 @@
 // src/app/(admin)/admin-dashboard/page.tsx
-import React from 'react'
-import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import VerificationActions from './VerificationActions'
+import { Clock, Trophy, User2 } from 'lucide-react'
+import RecentActivity from './RecentActivity'
 
 export default async function AdminDashboardPage() {
   const payload = await getPayload({ config })
-
-  // Ambil hanya prestasi dengan status 'pending'
-  // Depth 2 diperlukan agar Payload me-resolve relasi:
-  // Achievement -> Atlet (User) DAN Achievement -> Sertifikat (Media)
   const pendingAchievements = await payload.find({
     collection: 'achievements',
     where: {
@@ -19,70 +14,68 @@ export default async function AdminDashboardPage() {
     depth: 2,
     sort: 'createdAt', // FIFO (First In First Out)
   })
+  const totalAchievements = await payload.find({
+    collection: 'achievements',
+    depth: 2,
+    sort: 'createdAt', // FIFO (First In First Out)
+  })
+  const atlet = await payload.find({
+    collection: 'users',
+    where: {
+      role: { equals: 'athlete' },
+    },
+    depth: 2,
+  })
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">Verifikasi Prestasi</h1>
-        <p className="text-slate-500">Daftar pengajuan prestasi yang membutuhkan peninjauan.</p>
-      </div>
+    <>
+      <div className="flex flex-col gap-6">
+        <h1 className="font-medium text-[32px]">Admin Dashboard</h1>
+        <div className="grid grid-cols-3 gap-6">
+          {/* Cards */}
+          <div className="card-outline flex gap-5 items-stretch">
+            <div className=" bg-blue-500/20 text-blue-500 p-4 rounded-full flex items-center justify-center">
+              <User2 className="size-10" />
+            </div>
+            <div className="flex flex-col justify-between text-[20px]">
+              <span className="card-title mb-0!">Total Atlet</span>
+              <div>
+                <span className="font-bold text-[27px]">{atlet.totalDocs} </span>
+                <span>Atlet </span>
+              </div>
+            </div>
+          </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-100">
-              <th className="p-4 font-medium text-slate-600 text-sm">Nama Atlet</th>
-              <th className="p-4 font-medium text-slate-600 text-sm">Detail Kejuaraan</th>
-              <th className="p-4 font-medium text-slate-600 text-sm">Sertifikat</th>
-              <th className="p-4 font-medium text-slate-600 text-sm">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pendingAchievements.docs.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="p-8 text-center text-slate-500">
-                  Tidak ada pengajuan yang tertunda.
-                </td>
-              </tr>
-            ) : (
-              pendingAchievements.docs.map((doc: any) => (
-                <tr
-                  key={doc.id}
-                  className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
-                >
-                  <td className="p-4">
-                    <div className="font-medium text-slate-800">{doc.atlet?.namaLengkap}</div>
-                    <div className="text-sm text-slate-500">{doc.atlet?.sabuk}</div>
-                  </td>
-                  <td className="p-4">
-                    <div className="font-medium text-slate-800">{doc.namaKejuaraan}</div>
-                    <div className="text-sm text-slate-500">
-                      {doc.peringkat} - {doc.tingkatKejuaraan}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    {doc.sertifikat?.url ? (
-                      <a
-                        href={doc.sertifikat.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm font-medium"
-                      >
-                        Lihat Dokumen
-                      </a>
-                    ) : (
-                      <span className="text-red-500 text-sm">File Tidak Valid</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <VerificationActions achievementId={doc.id} />
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+          <div className="card-outline flex gap-5 items-stretch">
+            <div className=" bg-green-500/20 text-green-500 p-4 rounded-full flex items-center justify-center">
+              <Trophy className="size-10" />
+            </div>
+            <div className="flex flex-col justify-between text-[20px]">
+              <span className="card-title mb-0!">Total Prestasi</span>
+              <div>
+                <span className="font-bold text-[27px]">{totalAchievements.totalDocs} </span>
+                <span>Atlet </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="card-outline flex gap-5 items-stretch">
+            <div className=" bg-yellow-500/20 text-yellow-500 p-4 rounded-full flex items-center justify-center">
+              <Clock className="size-10" />
+            </div>
+            <div className="flex flex-col justify-between text-[20px]">
+              <span className="card-title mb-0!">Pending</span>
+              <div>
+                <span className="font-bold text-[27px]">{pendingAchievements.totalDocs} </span>
+                <span>Atlet </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+      <div className="grid gap-6 mt-6">
+        <RecentActivity />
+      </div>
+    </>
   )
 }

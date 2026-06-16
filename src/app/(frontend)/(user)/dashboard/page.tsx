@@ -16,6 +16,19 @@ export default async function DashboardPage() {
   // Validasi eksistensi sesi sudah ditangani secara absolut oleh Layout security gate
   const { user } = await payload.auth({ headers })
 
+  if (!user) return null // Guard clause tambahan
+
+  // Eksekusi count secara paralel menggunakan Promise.all untuk mencegah waterfall
+  // Kompilator akan menerjemahkan ini menjadi SELECT COUNT(*) murni di PostgreSQL
+  const [approvedCount] = await Promise.all([
+    payload.count({
+      collection: 'achievements',
+      where: {
+        and: [{ atlet: { equals: user.id } }],
+      },
+    }),
+  ])
+
   // 3. Prop Drilling to Presentation Layer
   return (
     <div className="flex flex-col gap-6">
@@ -33,7 +46,7 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <AthleteStatsGrid
         totalPoin={user?.totalPoin || 0}
-        totalPrestasi={0}
+        totalPrestasi={approvedCount.totalDocs}
         sabuk={user?.sabuk || 'Putih'}
       />
 

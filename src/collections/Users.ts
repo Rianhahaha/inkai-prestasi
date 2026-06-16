@@ -58,7 +58,21 @@ export const Users: CollectionConfig = {
     {
       name: 'sabuk',
       type: 'select',
-      options: ['Putih', 'Kuning', 'Hijau', 'Biru', 'Coklat', 'Hitam'],
+      defaultValue: 'Putih',
+      options: [
+        'Putih',
+        'Kuning',
+        'Hijau',
+        'Biru',
+        'Coklat Kyu 1',
+        'Coklat Kyu 2',
+        'Coklat Kyu 3',
+        'Hitam Dan 1',
+        'Hitam Dan 2',
+        'Hitam Dan 3',
+        'Hitam Dan 4',
+        'Hitam Dan 5',
+      ],
     },
     {
       name: 'totalPoin',

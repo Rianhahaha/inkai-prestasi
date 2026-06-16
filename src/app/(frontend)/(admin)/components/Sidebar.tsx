@@ -10,10 +10,10 @@ export function Sidebar() {
   const pathname = usePathname()
 
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Prestasi Saya', path: '/prestasi', icon: Trophy },
-    { name: 'Leaderboard', path: '/leaderboard', icon: Medal },
-    { name: 'Profil Saya', path: '/profil', icon: User },
+    { name: 'Dashboard', path: '/admin-dashboard', icon: LayoutDashboard },
+    { name: 'Verifikasi Prestasi', path: '/admin-dashboard/verifikasi-prestasi', icon: Trophy },
+    { name: 'Kelola Konten', path: '/admin-dashboard/konten', icon: Medal },
+    { name: 'Data Atlet', path: '/admin-dashboard/data-atlet', icon: User },
   ]
 
   return (
@@ -56,7 +56,7 @@ export function Sidebar() {
         <form action={logoutAction}>
           <button
             type="submit"
-            className="cursor-pointer flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-white/10 transition-colors text-left"
+            className="cursor-pointer flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-red-500 hover:text-white hovered text-left"
           >
             <LogOut size={20} />
             Logout

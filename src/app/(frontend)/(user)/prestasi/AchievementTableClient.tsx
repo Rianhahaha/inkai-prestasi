@@ -4,22 +4,17 @@
 import React, { useState } from 'react'
 
 // 1. Replikasi Matriks Poin (Derived State)
+// 1. Replikasi Matriks Poin (Absolute Dictionary Pattern)
 const calculatePoints = (peringkat: string, tingkat: string): number => {
-  const basePoints: Record<string, number> = {
-    'Juara 1': 30,
-    'Juara 2': 20,
-    'Juara 3': 10,
-  }
-  const multipliers: Record<string, number> = {
-    'Kabupaten/Kota': 1,
-    Provinsi: 2,
-    Nasional: 3,
-    Internasional: 5,
+  const pointMatrix: Record<string, Record<string, number>> = {
+    Kecamatan: { 'Juara 1': 10, 'Juara 2': 8, 'Juara 3': 5 },
+    'Kabupaten/Kota': { 'Juara 1': 20, 'Juara 2': 15, 'Juara 3': 10 },
+    Provinsi: { 'Juara 1': 40, 'Juara 2': 30, 'Juara 3': 20 },
+    Nasional: { 'Juara 1': 80, 'Juara 2': 60, 'Juara 3': 40 },
+    Internasional: { 'Juara 1': 160, 'Juara 2': 120, 'Juara 3': 80 },
   }
 
-  const base = basePoints[peringkat] || 0
-  const multiplier = multipliers[tingkat] || 1
-  return base * multiplier
+  return pointMatrix[tingkat]?.[peringkat] || 0
 }
 
 // 2. Re-styled Status Badge
@@ -87,7 +82,13 @@ export default function AchievementTableClient({ initialData }: { initialData: a
                       <td className="py-4 px-4 text-sm text-slate-600 text-center">
                         {doc.peringkat}
                       </td>
-                      <td className="py-4 px-4 text-sm text-slate-600 text-center">
+                      <td
+                        className={`py-4 px-4 text-sm
+                          
+                         ${doc?.status === 'approved' ? 'text-green-500 font-bold' : 'text-slate-600'}
+                         text-center`}
+                      >
+                        {doc?.status === 'approved' && <>+</>}
                         {displayPoints}
                       </td>
                       <td className="py-4 px-4 text-center">

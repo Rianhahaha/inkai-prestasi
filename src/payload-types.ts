@@ -131,7 +131,22 @@ export interface User {
   tanggalLahir?: string | null;
   jenisKelamin?: ('Laki-laki' | 'Perempuan') | null;
   nomorTelepon?: string | null;
-  sabuk?: ('Putih' | 'Kuning' | 'Hijau' | 'Biru' | 'Coklat' | 'Hitam') | null;
+  sabuk?:
+    | (
+        | 'Putih'
+        | 'Kuning'
+        | 'Hijau'
+        | 'Biru'
+        | 'Coklat Kyu 1'
+        | 'Coklat Kyu 2'
+        | 'Coklat Kyu 3'
+        | 'Hitam Dan 1'
+        | 'Hitam Dan 2'
+        | 'Hitam Dan 3'
+        | 'Hitam Dan 4'
+        | 'Hitam Dan 5'
+      )
+    | null;
   totalPoin?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -182,7 +197,7 @@ export interface Achievement {
   namaKejuaraan: string;
   kategori: string;
   peringkat: 'Juara 1' | 'Juara 2' | 'Juara 3';
-  tingkatKejuaraan: 'Kabupaten/Kota' | 'Provinsi' | 'Nasional' | 'Internasional';
+  tingkatKejuaraan: 'Kecamatan' | 'Kabupaten/Kota' | 'Provinsi' | 'Nasional' | 'Internasional';
   tanggalKejuaraan: string;
   lokasiKejuaraan?: string | null;
   sertifikat: number | Media;
