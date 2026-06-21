@@ -6,15 +6,12 @@ import config from '@payload-config'
 import { Calendar, Clock, LocationEdit } from 'lucide-react'
 import Image from 'next/image'
 import { AthleteStatsGrid } from '../components/AthleteStatsGrid'
+import { getCurrentUser } from '@/lib/auth'
 
 export default async function DashboardPage() {
   // 1. Initialize Local API
   const payload = await getPayload({ config })
-  const headers = await getHeaders()
-
-  // 2. Fetch authenticated user data directly from DB
-  // Validasi eksistensi sesi sudah ditangani secara absolut oleh Layout security gate
-  const { user } = await payload.auth({ headers })
+  const user = await getCurrentUser()
 
   if (!user) return null // Guard clause tambahan
 
@@ -29,13 +26,33 @@ export default async function DashboardPage() {
     }),
   ])
 
+  let avatarUrl = '/images/placeholder-avatar.png' // Ganti dengan path icon default Anda jika ada
+
+  if (user.fotoProfil) {
+    try {
+      // Ambil dokumen media berdasarkan ID
+      const mediaId = typeof user.fotoProfil === 'object' ? user.fotoProfil.id : user.fotoProfil
+      const media = await payload.findByID({
+        collection: 'media',
+        id: mediaId as number | string,
+      })
+      if (media?.url) avatarUrl = media.url
+    } catch (e) {
+      console.error('[Media Fetch Error]', e)
+    }
+  }
+
   // 3. Prop Drilling to Presentation Layer
   return (
     <div className="flex flex-col gap-6">
       {/* Header Card */}
       <div className="bg-blue-500 rounded-2xl p-8 text-white shadow-sm flex items-center gap-6">
-        <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl">
-          👩‍💼 {/* Placeholder Avatar */}
+        <div className="w-20 h-20 p-2 bg-white/20 rounded-full flex items-center justify-center text-3xl">
+          <img
+            src={avatarUrl}
+            alt={user?.namaLengkap || 'User Avatar'}
+            className="size-full rounded-full object-cover"
+          />
         </div>
         <div>
           <h1 className="text-xl opacity-90">Halo,</h1>

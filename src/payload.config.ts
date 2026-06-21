@@ -8,8 +8,9 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Achievements } from './collections/Achievements'
-
+import BackToDashboard from './components/BackToDashboard'
 import { s3Storage } from '@payloadcms/storage-s3'
+import { Konten } from './collections/Konten'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -20,11 +21,16 @@ export default buildConfig({
   },
   admin: {
     user: Users.slug,
+    components: {
+      beforeNavLinks: ['./components/BackToDashboard'],
+    },
+    theme: 'light',
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Achievements],
+
+  collections: [Users, Media, Achievements, Konten],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

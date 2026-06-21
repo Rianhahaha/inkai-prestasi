@@ -33,7 +33,8 @@ export function Sidebar() {
 
         <nav className="mt-6 flex flex-col gap-2 px-4">
           {navItems.map((item) => {
-            const isActive = pathname === item.path
+            const isActive =
+              item.path === '/' ? pathname === item.path : pathname.startsWith(item.path)
             const Icon = item.icon
             return (
               <Link

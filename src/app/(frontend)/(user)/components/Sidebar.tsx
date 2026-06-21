@@ -32,7 +32,8 @@ export function Sidebar() {
 
         <nav className="mt-6 flex flex-col gap-2 px-4">
           {navItems.map((item) => {
-            const isActive = pathname === item.path
+            const isActive =
+              item.path === '/' ? pathname === item.path : pathname.startsWith(item.path)
             const Icon = item.icon
             return (
               <Link
@@ -55,7 +56,7 @@ export function Sidebar() {
         <form action={logoutAction}>
           <button
             type="submit"
-            className="cursor-pointer flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-white/10 transition-colors text-left"
+            className="cursor-pointer flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-red-500 hover:text-white transition-colors text-left"
           >
             <LogOut size={20} />
             Logout

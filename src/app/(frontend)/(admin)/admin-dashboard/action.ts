@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { headers as getHeaders } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { getCurrentUser } from '@/lib/auth'
 
 export async function verifyAchievement(
   achievementId: string | number,
@@ -13,7 +14,7 @@ export async function verifyAchievement(
 ) {
   const payload = await getPayload({ config })
   const headers = await getHeaders()
-  const { user } = await payload.auth({ headers })
+  const user = await getCurrentUser()
 
   // 1. Otorisasi Ketat: Hanya admin/superadmin yang berhak mengeksekusi ini
   if (!user || !['admin', 'superadmin'].includes(user.role)) {

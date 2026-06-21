@@ -71,6 +71,19 @@ export default function PengajuanPrestasiPage() {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Jenis Kejuaraan</label>
+              <select
+                name="jenisKejuaraan"
+                required
+                className="w-full border border-slate-300 bg-white p-3 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Open">Open</option>
+                <option value="Festival">Festival</option>
+              </select>
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Peringkat</label>

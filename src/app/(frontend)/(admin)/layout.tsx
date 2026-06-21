@@ -5,11 +5,12 @@ import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Sidebar } from './components/Sidebar'
+import { getCurrentUser } from '@/lib/auth'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const payload = await getPayload({ config })
   const headers = await getHeaders()
-  const { user } = await payload.auth({ headers })
+  const user = await getCurrentUser()
 
   if (!user) {
     redirect('/login')

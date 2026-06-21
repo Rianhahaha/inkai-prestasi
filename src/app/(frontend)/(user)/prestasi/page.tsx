@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getCurrentUser } from '@/lib/auth'
 
 // Import Presenter Component
 import AchievementTableClient from './AchievementTableClient'
@@ -11,8 +12,7 @@ import { AthleteStatsGrid } from '../components/AthleteStatsGrid'
 
 export default async function PrestasiSayaPage() {
   const payload = await getPayload({ config })
-  const headers = await getHeaders()
-  const { user } = await payload.auth({ headers })
+  const user = await getCurrentUser()
 
   if (!user) return null
 

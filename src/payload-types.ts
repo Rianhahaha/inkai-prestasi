@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     achievements: Achievement;
+    konten: Konten;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     achievements: AchievementsSelect<false> | AchievementsSelect<true>;
+    konten: KontenSelect<false> | KontenSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -125,8 +127,17 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  /**
+   * ID identitas absolut dari sistem Google OAuth.
+   */
+  googleId?: string | null;
+  authProvider?: ('local' | 'google')[] | null;
   role: 'superadmin' | 'admin' | 'athlete';
   namaLengkap: string;
+  /**
+   * Referensi ke koleksi media untuk foto profil atlet.
+   */
+  fotoProfil?: (number | null) | Media;
   tempatLahir?: string | null;
   tanggalLahir?: string | null;
   jenisKelamin?: ('Laki-laki' | 'Perempuan') | null;
@@ -196,6 +207,7 @@ export interface Achievement {
   atlet: number | User;
   namaKejuaraan: string;
   kategori: string;
+  jenisKejuaraan: 'Open' | 'Festival';
   peringkat: 'Juara 1' | 'Juara 2' | 'Juara 3';
   tingkatKejuaraan: 'Kecamatan' | 'Kabupaten/Kota' | 'Provinsi' | 'Nasional' | 'Internasional';
   tanggalKejuaraan: string;
@@ -203,6 +215,46 @@ export interface Achievement {
   sertifikat: number | Media;
   status?: ('pending' | 'approved' | 'rejected') | null;
   catatanPenolakan?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "konten".
+ */
+export interface Konten {
+  id: number;
+  judul: string;
+  /**
+   * Muncul sebagai deskripsi singkat di card UI.
+   */
+  ringkasan: string;
+  kategori: 'Kejuaraan' | 'Pengumuman' | 'Berita' | 'Lainnya';
+  /**
+   * Contoh: 28-30 Agustus 2026
+   */
+  tanggalPelaksanaan?: string | null;
+  /**
+   * Contoh: GOR Amongrogo
+   */
+  lokasi?: string | null;
+  thumbnail: number | Media;
+  isiKonten: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  status?: ('draft' | 'published') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -241,6 +293,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'achievements';
         value: number | Achievement;
+      } | null)
+    | ({
+        relationTo: 'konten';
+        value: number | Konten;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -289,8 +345,11 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  googleId?: T;
+  authProvider?: T;
   role?: T;
   namaLengkap?: T;
+  fotoProfil?: T;
   tempatLahir?: T;
   tanggalLahir?: T;
   jenisKelamin?: T;
@@ -341,6 +400,7 @@ export interface AchievementsSelect<T extends boolean = true> {
   atlet?: T;
   namaKejuaraan?: T;
   kategori?: T;
+  jenisKejuaraan?: T;
   peringkat?: T;
   tingkatKejuaraan?: T;
   tanggalKejuaraan?: T;
@@ -348,6 +408,22 @@ export interface AchievementsSelect<T extends boolean = true> {
   sertifikat?: T;
   status?: T;
   catatanPenolakan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "konten_select".
+ */
+export interface KontenSelect<T extends boolean = true> {
+  judul?: T;
+  ringkasan?: T;
+  kategori?: T;
+  tanggalPelaksanaan?: T;
+  lokasi?: T;
+  thumbnail?: T;
+  isiKonten?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

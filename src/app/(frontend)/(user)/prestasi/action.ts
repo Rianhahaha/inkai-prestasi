@@ -5,11 +5,12 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { headers as getHeaders } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { getCurrentUser } from '@/lib/auth'
 
 export async function submitPrestasi(prevState: any, formData: FormData) {
   const payload = await getPayload({ config })
   const headers = await getHeaders()
-  const { user } = await payload.auth({ headers })
+  const user = await getCurrentUser()
 
   // 1. Security Barrier
   if (!user) {

@@ -6,6 +6,7 @@ import { CheckCircleIcon, Clock, LucideCircleX, Trophy, User2 } from 'lucide-rea
 import { StatusBadge, TingkatBadge } from '../../components/Badges'
 import StatCard from './StatCard'
 import PaginationControls from '@/app/(frontend)/components/PaginationControls'
+import SearchBar from '@/app/(frontend)/components/SearchBar'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 type PageProps = {
@@ -19,21 +20,12 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
 
   const currentPage = Number(resolvedParams.page) || 1
   const limitPerPage = 10
-
+  const searchTerm = resolvedParams.search || ''
   const [pendingCount, approvedCount, rejectedCount] = await Promise.all([
     payload.count({ collection: 'achievements', where: { status: { equals: 'pending' } } }),
     payload.count({ collection: 'achievements', where: { status: { equals: 'approved' } } }),
     payload.count({ collection: 'achievements', where: { status: { equals: 'rejected' } } }),
   ])
-
-  const tableData = await payload.find({
-    collection: 'achievements',
-    where: { status: { equals: currentStatus } },
-    depth: 2,
-    sort: 'createdAt',
-    limit: limitPerPage,
-    page: currentPage,
-  })
 
   const tableTitle =
     {
@@ -41,6 +33,26 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
       approved: 'Prestasi Disetujui',
       rejected: 'Prestasi Ditolak',
     }[currentStatus] || 'Daftar Prestasi'
+
+  const queryWhere: any = {
+    and: [{ status: { equals: currentStatus } }],
+  }
+  if (searchTerm) {
+    queryWhere.and.push({
+      or: [
+        // { namaKejuaraan: { contains: searchTerm } },
+        { 'atlet.namaLengkap': { contains: searchTerm } },
+      ],
+    })
+  }
+  const tableData = await payload.find({
+    collection: 'achievements',
+    where: queryWhere,
+    depth: 2,
+    sort: 'createdAt',
+    limit: limitPerPage,
+    page: currentPage,
+  })
 
   return (
     <>
@@ -77,6 +89,7 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
         <h1 className="text-2xl font-bold text-slate-800 mb-2">Verifikasi Prestasi</h1>
         <p className="text-slate-500">Daftar pengajuan prestasi yang membutuhkan peninjauan.</p>
       </div> */}
+        <SearchBar placeholder="Cari nama atlet..." />
       </div>
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-5">
         {/* Header Section dengan Icon */}
@@ -95,6 +108,7 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm">Nama Atlet</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm">Nama Kejuaraan</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm">Juara</th>
+                <th className="py-4 px-6 font-bold text-slate-800 text-sm">Jenis Kejuaraan</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm text-center">Tingkat</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm text-center">Status</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm text-center">Aksi</th>
@@ -129,6 +143,9 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
                       </div>
                     </td>
                     <td className="py-4 px-6 text-sm text-slate-800">{doc.peringkat}</td>
+                    <td className="py-4 px-6 text-sm text-slate-800 text-center">
+                      {doc.jenisKejuaraan}
+                    </td>
                     <td className="py-4 px-6 text-center flex justify-center">
                       <TingkatBadge tingkat={doc.tingkatKejuaraan} />
                     </td>

@@ -81,8 +81,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50 py-12 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <div className="h-auto flex items-center justify-center w-full">
+      <div className="bg-white w-full max-w-7xl ">
         <h2 className="text-2xl font-bold mb-8 text-slate-800">Daftar Akun</h2>
 
         {error && (
@@ -94,7 +94,7 @@ export default function RegisterPage() {
         <form onSubmit={handleRegister} className="flex flex-col gap-5">
           {/* Full Width Field */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
+            <label className="block text-sm font-normal text-slate-700 mb-1">Nama Lengkap</label>
             <input
               type="text"
               name="namaLengkap"
@@ -108,7 +108,7 @@ export default function RegisterPage() {
           {/* Two Column Grid */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Tempat Lahir</label>
+              <label className="block text-sm font-normal text-slate-700 mb-1">Tempat Lahir</label>
               <input
                 type="text"
                 name="tempatLahir"
@@ -118,7 +118,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Tanggal Lahir</label>
+              <label className="block text-sm font-normal text-slate-700 mb-1">Tanggal Lahir</label>
               <input
                 type="date"
                 name="tanggalLahir"
@@ -130,7 +130,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-sm font-normal text-slate-700 mb-1">Email</label>
             <input
               type="email"
               name="email"
@@ -142,7 +142,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <label className="block text-sm font-normal text-slate-700 mb-1">Password</label>
             <input
               type="password"
               name="password"
@@ -156,7 +156,7 @@ export default function RegisterPage() {
           {/* Two Column Grid */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nomor Telepon</label>
+              <label className="block text-sm font-normal text-slate-700 mb-1">Nomor Telepon</label>
               <input
                 type="tel"
                 name="nomorTelepon"
@@ -166,7 +166,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Sabuk</label>
+              <label className="block text-sm font-normal text-slate-700 mb-1">Sabuk</label>
               <select
                 name="sabuk"
                 value={formData.sabuk}
@@ -185,7 +185,7 @@ export default function RegisterPage() {
 
           {/* Radio Buttons */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Jenis Kelamin</label>
+            <label className="block text-sm font-normal text-slate-700 mb-2">Jenis Kelamin</label>
             <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
                 <input
@@ -215,15 +215,18 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-500 text-white py-2.5 rounded-lg hover:bg-blue-600 font-medium transition-colors mt-2 disabled:opacity-70"
+            className="w-full bg-blue-500 text-white py-2.5 rounded-lg hover:bg-blue-600 font-normal transition-colors mt-2 disabled:opacity-70"
           >
             {isLoading ? 'Memproses...' : 'Daftar Akun'}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-500">
-          Sudah punya akun?{' '}
-          <Link href="/login" className="text-blue-500 hover:text-blue-600 font-medium">
+          Sudah punya akun? <br /> Masuk dengan email atau Google di{' '}
+          <Link
+            href="/login"
+            className="text-blue-500 hover:text-blue-600 font-normal hover:underline"
+          >
             Login
           </Link>
         </div>

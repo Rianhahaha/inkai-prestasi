@@ -3,13 +3,31 @@ import { CollectionConfig } from 'payload'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  admin: {
+    hidden: ({ user }) => !['superadmin', 'admin'].includes(user?.role as string),
+    // [!] UI VISIBILITY INTERCEPTOR
+    // Hanya memfilter tampilan di Dashboard Payload, tidak memblokir API Fetching
+    baseListFilter: ({ req }) => {
+      const user = req.user
 
+      // Jika yang login adalah admin konten, sembunyikan file milik atlet
+      if (user?.role === 'admin') {
+        return {
+          'owner.role': {
+            in: ['superadmin', 'admin'],
+          },
+        }
+      }
+
+      // Superadmin melihat seluruh media di database tanpa filter
+      return null
+    },
+  },
   hooks: {
     beforeValidate: [
       ({ req, data }) => {
-        // Jika ada user yang login (admin) dan payload data belum memiliki owner
-        // Otomatis tempelkan ID user tersebut.
-        if (req.user && data) {
+        // Injeksi otomatis ID uploader secara aman
+        if (req.user && data && !data.owner) {
           data.owner = req.user.id
         }
         return data
@@ -17,29 +35,18 @@ export const Media: CollectionConfig = {
     ],
   },
   access: {
-    // Only admins or the owner can read the file
-    read: ({ req: { user } }) => {
-      // Tolak akses jika tidak ada sesi
-      if (!user) return false
+    // [!] API SECURITY LAYER
+    // Wajib Publik: Jika tidak, Next.js tidak akan bisa merender <img src="...">
+    read: () => true,
 
-      // Bypass mutlak untuk administrator
-      if (user.role === 'superadmin' || user.role === 'admin') return true
-
-      // Fallback ke Query Constraint:
-      // "Hanya kembalikan record di mana kolom 'owner' sama dengan ID saya"
-      return {
-        owner: {
-          equals: user.id,
-        },
-      }
-    },
+    // Write Access Control
     create: ({ req: { user } }) => Boolean(user),
-    update: () => false,
-    delete: ({ req: { user } }) => user?.role === 'superadmin' || user?.role === 'admin',
+    update: ({ req: { user } }) => ['superadmin', 'admin'].includes(user?.role as string),
+    delete: ({ req: { user } }) => ['superadmin', 'admin'].includes(user?.role as string),
   },
   upload: {
-    disableLocalStorage: true, // WAJIB: Mencegah Payload mencoba menulis ke disk lokal server
-    mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    disableLocalStorage: true,
+    mimeTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
   },
   fields: [
     {

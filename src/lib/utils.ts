@@ -67,3 +67,18 @@ export const formatDateTime = (dateInput: string | Date): string => {
     timeZone: 'Asia/Jakarta',
   }).format(date)
 }
+
+export const sabukOptions = [
+  'Putih',
+  'Kuning',
+  'Hijau',
+  'Biru',
+  'Coklat Kyu 3',
+  'Coklat Kyu 2',
+  'Coklat Kyu 1',
+  'Hitam Dan 1',
+  'Hitam Dan 2',
+  'Hitam Dan 3',
+  'Hitam Dan 4',
+  'Hitam Dan 5',
+]

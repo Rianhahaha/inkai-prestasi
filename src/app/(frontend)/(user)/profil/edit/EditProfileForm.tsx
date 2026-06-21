@@ -1,15 +1,25 @@
 // src/app/(user)/profil/edit/EditProfileForm.tsx
 'use client'
 
-import React, { useTransition, useState } from 'react'
+import React, { useTransition, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateProfileAction } from './action'
-import { Save, ArrowLeft } from 'lucide-react'
+import { updateProfileAction } from '@/app/(frontend)/(user)/profil/edit/action' // Pastikan nama import sesuai
+import { Camera, Save } from 'lucide-react'
+import { sabukOptions } from '@/lib/utils'
 
-export default function EditProfileForm({ user }: { user: any }) {
+export default function EditProfileForm({
+  user,
+  initialAvatarUrl,
+}: {
+  user: any
+  initialAvatarUrl: string
+}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; msg: string } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [previewUrl, setPreviewUrl] = useState<string>(initialAvatarUrl)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -22,15 +32,25 @@ export default function EditProfileForm({ user }: { user: any }) {
 
       if (res.success) {
         setFeedback({ type: 'success', msg: res.message! })
-        // Beri jeda visual sedikit sebelum redirect kembali ke profil
         setTimeout(() => router.push('/profil'), 1500)
       } else {
         setFeedback({ type: 'error', msg: res.error! })
       }
     })
   }
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validasi ukuran standar (opsional, misal max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Ukuran file maksimal 5MB')
+        return
+      }
+      setPreviewUrl(URL.createObjectURL(file))
+    }
+  }
 
-  // Helper untuk form field yang konsisten
+  // Reusable input component
   const InputField = ({ label, name, defaultValue, type = 'text', required = false }: any) => (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-medium text-slate-700">{label}</label>
@@ -44,27 +64,13 @@ export default function EditProfileForm({ user }: { user: any }) {
     </div>
   )
 
-  const DisabledField = ({ label, value, note }: any) => (
-    <div className="flex flex-col gap-2 opacity-70">
-      <div className="flex justify-between items-center">
-        <label className="text-sm font-medium text-slate-500">{label}</label>
-        {note && (
-          <span className="text-[10px] font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded">
-            {note}
-          </span>
-        )}
-      </div>
-      <input
-        type="text"
-        disabled
-        value={value || '-'}
-        className="w-full border border-slate-200 bg-slate-100 p-3 rounded-lg text-sm text-slate-500 cursor-not-allowed"
-      />
-    </div>
-  )
-
   return (
     <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6">
+      {error && (
+        <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm font-semibold rounded-r-xl">
+          {error}
+        </div>
+      )}
       {feedback && (
         <div
           className={`p-4 rounded-xl text-sm font-bold ${
@@ -74,6 +80,31 @@ export default function EditProfileForm({ user }: { user: any }) {
           {feedback.msg}
         </div>
       )}
+      <div className="flex flex-col items-center justify-center gap-3 py-2">
+        <div
+          className="relative w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden group cursor-pointer bg-slate-100"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <img src={previewUrl} alt="Profile Preview" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <Camera className="text-white w-6 h-6" />
+          </div>
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-medium text-slate-700">Foto Profil</p>
+          <p className="text-xs text-slate-400">Klik gambar untuk mengubah (Opsional)</p>
+        </div>
+
+        {/* Hidden Input File */}
+        <input
+          type="file"
+          name="fotoProfilFile"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleImageChange}
+          className="hidden"
+        />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
         <div className="md:col-span-2">
@@ -90,7 +121,6 @@ export default function EditProfileForm({ user }: { user: any }) {
         </div>
 
         <div className="col-span-1">
-          {/* Input date Native yang ditranslasi ke ISO string saat disubmit */}
           <InputField
             label="Tanggal Lahir"
             name="tanggalLahir"
@@ -111,11 +141,38 @@ export default function EditProfileForm({ user }: { user: any }) {
         </div>
 
         <div className="col-span-1">
-          <DisabledField label="Sabuk" value={user.sabuk} note="Hanya Admin" />
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-700">Sabuk (Tingkatan)</label>
+            <select
+              name="sabuk"
+              required
+              defaultValue={user.sabuk || ''}
+              className="w-full border border-slate-300 bg-white p-3 rounded-lg text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+            >
+              <option value="" disabled>
+                Pilih Sabuk...
+              </option>
+              {sabukOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="md:col-span-2">
-          <DisabledField label="Email" value={user.email} note="Hubungi Admin untuk ubah" />
+        <div className="col-span-1">
+          <InputField label="Email" name="email" type="email" defaultValue={user.email} required />
+        </div>
+
+        <div className="col-span-1">
+          {/* Password is intentionally not required to allow selective patching */}
+          <InputField
+            label="Password Baru (Abaikan jika tidak diubah)"
+            name="password"
+            type="password"
+            required={false}
+          />
         </div>
       </div>
 

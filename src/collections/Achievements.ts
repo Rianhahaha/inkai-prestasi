@@ -1,19 +1,8 @@
 // src/collections/Achievements.ts
 import { CollectionConfig, CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
+import { calculatePoints } from '@/lib/points'
 
-const calculatePoints = (peringkat: string, tingkat: string): number => {
-  const pointMatrix: Record<string, Record<string, number>> = {
-    Kecamatan: { 'Juara 1': 10, 'Juara 2': 8, 'Juara 3': 5 },
-    'Kabupaten/Kota': { 'Juara 1': 20, 'Juara 2': 15, 'Juara 3': 10 },
-    Provinsi: { 'Juara 1': 40, 'Juara 2': 30, 'Juara 3': 20 },
-    Nasional: { 'Juara 1': 80, 'Juara 2': 60, 'Juara 3': 40 },
-    Internasional: { 'Juara 1': 160, 'Juara 2': 120, 'Juara 3': 80 },
-  }
-  return pointMatrix[tingkat]?.[peringkat] || 0
-}
-
-// 1. The Core Aggregation Engine
-// [!] Ubah parameter kedua untuk menerima seluruh objek `req`
+// 2. The Core Aggregation Engine
 const syncAthletePoints = async (athleteId: string | number, req: any) => {
   try {
     const approvedAchievements = await req.payload.find({
@@ -27,7 +16,8 @@ const syncAthletePoints = async (athleteId: string | number, req: any) => {
     })
 
     const absoluteTotalPoints = approvedAchievements.docs.reduce((sum: number, doc: any) => {
-      return sum + calculatePoints(doc.peringkat, doc.tingkatKejuaraan)
+      // Injeksi parameter ketiga (jenisKejuaraan)
+      return sum + calculatePoints(doc.jenisKejuaraan, doc.tingkatKejuaraan, doc.peringkat)
     }, 0)
 
     await req.payload.update({
@@ -47,16 +37,14 @@ const syncAthletePoints = async (athleteId: string | number, req: any) => {
   }
 }
 
-// 2. The Triggers
+// 3. The Triggers
 const afterChangeSync: CollectionAfterChangeHook = async ({ doc, req }) => {
   const athleteId = typeof doc.atlet === 'object' ? doc.atlet.id : doc.atlet
-  // Lempar seluruh objek `req`
   await syncAthletePoints(athleteId, req)
 }
 
 const afterDeleteSync: CollectionAfterDeleteHook = async ({ doc, req }) => {
   const athleteId = typeof doc.atlet === 'object' ? doc.atlet.id : doc.atlet
-  // Lempar seluruh objek `req`
   await syncAthletePoints(athleteId, req)
 }
 
@@ -64,6 +52,7 @@ export const Achievements: CollectionConfig = {
   slug: 'achievements',
   admin: {
     useAsTitle: 'namaKejuaraan',
+    hidden: ({ user }) => user?.role !== 'superadmin',
   },
   access: {
     read: ({ req: { user } }) => Boolean(user),
@@ -71,13 +60,10 @@ export const Achievements: CollectionConfig = {
     update: ({ req: { user } }) => ['admin', 'superadmin'].includes(user?.role as string),
     delete: ({ req: { user } }) => ['admin', 'superadmin'].includes(user?.role as string),
   },
-
-  // [!] Daftarkan kedua trigger hook di sini
   hooks: {
     afterChange: [afterChangeSync],
     afterDelete: [afterDeleteSync],
   },
-
   fields: [
     {
       name: 'atlet',
@@ -89,6 +75,16 @@ export const Achievements: CollectionConfig = {
     },
     { name: 'namaKejuaraan', type: 'text', required: true },
     { name: 'kategori', type: 'text', required: true },
+
+    // [!] Field Baru Terinjeksi
+    {
+      name: 'jenisKejuaraan',
+      type: 'select',
+      options: ['Open', 'Festival'],
+      required: true,
+      defaultValue: 'Open',
+    },
+
     {
       name: 'peringkat',
       type: 'select',

@@ -3,6 +3,7 @@
 
 import React, { useState, useTransition } from 'react'
 import { User2, FileText, Award, CheckCircle, CircleX, AlertTriangle } from 'lucide-react'
+import { calculatePoints, POINT_MATRIX } from '@/lib/points' // [!] Import Shared Utility
 
 interface VerificationModalProps {
   doc: any
@@ -12,16 +13,7 @@ interface VerificationModalProps {
   onReject: (id: string, reason: string) => Promise<{ success: boolean; error?: string }>
 }
 
-// 1. Point Reference Dictionary matching business rules
-const pointMatrix: Record<string, Record<string, number>> = {
-  Kecamatan: { 'Juara 1': 10, 'Juara 2': 8, 'Juara 3': 5 },
-  'Kabupaten/Kota': { 'Juara 1': 20, 'Juara 2': 15, 'Juara 3': 10 },
-  Provinsi: { 'Juara 1': 40, 'Juara 2': 30, 'Juara 3': 20 },
-  Nasional: { 'Juara 1': 80, 'Juara 2': 60, 'Juara 3': 40 },
-  Internasional: { 'Juara 1': 160, 'Juara 2': 120, 'Juara 3': 80 },
-}
-
-// Mapping for visual presentation to match the mockup design
+// Mapping for visual presentation
 const rankVisuals: Record<string, { label: string; color: string }> = {
   'Juara 1': { label: 'Emas', color: 'text-yellow-500' },
   'Juara 2': { label: 'Perak', color: 'text-slate-400' },
@@ -34,15 +26,17 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
   const [showRejectForm, setShowRejectForm] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  // Derive points based on current document configuration
+  // [!] Derive points menggunakan 3D Shared Utility
+  const currentJenis = doc?.jenisKejuaraan?.toLowerCase() || 'open'
   const currentTingkat = doc?.tingkatKejuaraan || 'Kecamatan'
-  const calculatedPoints = pointMatrix[currentTingkat]?.[doc?.peringkat] || 0
-  const currentTingkatMatrix = pointMatrix[currentTingkat] || {}
+  const calculatedPoints = calculatePoints(currentJenis, currentTingkat, doc?.peringkat)
+
+  // Ekstraksi sub-matriks spesifik untuk referensi visual Admin
+  const currentTingkatMatrix = POINT_MATRIX[currentJenis]?.[currentTingkat] || {}
 
   const handleApprove = () => {
     setErrorMessage(null)
     startTransition(async () => {
-      // Execute the approval Server Action mutation
       const res = await onApprove(doc.id)
       if (res.success) {
         onClose()
@@ -58,7 +52,6 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
 
     setErrorMessage(null)
     startTransition(async () => {
-      // Execute the rejection Server Action mutation with input rationale
       const res = await onReject(doc.id, rejectReason)
       if (res.success) {
         onClose()
@@ -67,8 +60,6 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
       }
     })
   }
-
-  console.log(doc)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 text-left">
@@ -92,6 +83,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
               {errorMessage}
             </div>
           )}
+
           {/* Athlete Profile Section */}
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 overflow-hidden shrink-0">
@@ -110,17 +102,13 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
                 {doc.atlet?.namaLengkap || 'Nama Atlet'}
               </h4>
               <span
-                className={`px-3 py-1 
-               
-              ${
-                doc?.status === 'approved'
-                  ? 'bg-green-100 text-green-700'
-                  : doc.status === 'pending'
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : 'bg-red-100 text-red-700'
-              }
-
-              text-xs font-semibold rounded-md w-fit`}
+                className={`px-3 py-1 ${
+                  doc?.status === 'approved'
+                    ? 'bg-green-100 text-green-700'
+                    : doc.status === 'pending'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : 'bg-red-100 text-red-700'
+                } text-xs font-semibold rounded-md w-fit`}
               >
                 {doc?.status === 'approved'
                   ? 'Disetujui'
@@ -130,6 +118,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
               </span>
             </div>
           </div>
+
           {/* Form Fields Stack */}
           <div className="flex flex-col gap-4">
             <div className="border border-slate-200 bg-slate-50/30 p-4 rounded-xl">
@@ -150,6 +139,17 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
                 <label className="block text-xs font-semibold text-slate-400 mb-1">Peringkat</label>
                 <div className="font-bold text-slate-800 text-sm">
                   {doc.peringkat} / {rankVisuals[doc.peringkat]?.label}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="border border-slate-200 bg-slate-50/30 p-4 rounded-xl">
+                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  Jenis Kejuaraan
+                </label>
+                <div className="font-bold text-slate-800 text-sm">
+                  {doc.jenisKejuaraan || 'Open'}
                 </div>
               </div>
             </div>
@@ -180,6 +180,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
               </div>
             </div>
           </div>
+
           {/* Document Section */}
           <div className="border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 overflow-hidden">
@@ -206,6 +207,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
               </a>
             )}
           </div>
+
           {/* Point Computation Section */}
           <div className="border border-slate-200 rounded-xl">
             <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2 text-sm font-bold text-slate-700">
@@ -216,11 +218,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
               <div>
                 <div className="text-slate-400 font-medium mb-1">Poin Prestasi</div>
                 <div
-                  className={`font-bold
-                    
-                  ${doc?.status === 'approved' ? 'text-blue-500' : 'text-slate-800'}
-
-                   text-lg`}
+                  className={`font-bold ${doc?.status === 'approved' ? 'text-blue-500' : 'text-slate-800'} text-lg`}
                 >
                   {doc?.status === 'approved' ? `+${calculatedPoints} Poin` : 'Belum dihitung'}
                 </div>
@@ -234,9 +232,9 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
 
               <div className="border-l border-slate-100 pl-6">
                 <div className="text-slate-400 font-medium mb-1">Referensi Poin</div>
-
+                {/* [!] Injeksi label jenis kejuaraan agar representasi admin lebih akurat */}
                 <div className="text-blue-500 font-medium text-xs mb-2">
-                  Tingkat: {currentTingkat}
+                  Tingkat: {currentTingkat} ({doc.jenisKejuaraan || 'Open'})
                 </div>
                 <div className="flex flex-col gap-1 text-xs font-normal text-slate-500">
                   {Object.entries(currentTingkatMatrix).map(([rank, val]) => {
@@ -253,6 +251,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
                   })}
                 </div>
               </div>
+
               {doc?.status === 'pending' && (
                 <div className="col-span-2 border-t border-slate-100 pt-3 text-xs text-amber-600 font-medium flex items-center gap-1.5">
                   ⚠️ Poin akan otomatis ditambahkan setelah pengajuan disetujui.
@@ -266,6 +265,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
               )}
             </div>
           </div>
+
           {doc?.status === 'approved' && (
             <div className="card-outline text-green-500 bg-green-50 font-bold flex gap-2 text-sm">
               <CheckCircle />
@@ -281,6 +281,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
               <p className="font-normal text-sm text-wrap">{doc?.catatanPenolakan || '-'}</p>
             </div>
           )}
+
           {/* Conditional Rejection Form */}
           {showRejectForm && (
             <form
@@ -301,7 +302,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
                 <button
                   type="button"
                   onClick={() => setShowRejectForm(false)}
-                  className="px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-700"
+                  className="px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
                 >
                   Batal
                 </button>
@@ -320,7 +321,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
         {/* Modal Footer Actions */}
         {!showRejectForm && (
           <div
-            className={`p-6 bg-slate-50 border-t border-slate-100 flex ${doc?.status === 'pending' ? '' : 'flex-row-reverse'}  gap-4 shrink-0`}
+            className={`p-6 bg-slate-50 border-t border-slate-100 flex ${doc?.status === 'pending' ? '' : 'flex-row-reverse'} gap-4 shrink-0`}
           >
             {doc?.status === 'pending' && (
               <>
@@ -340,7 +341,6 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
                 </button>
               </>
             )}
-
             <button
               onClick={onClose}
               disabled={isPending}
