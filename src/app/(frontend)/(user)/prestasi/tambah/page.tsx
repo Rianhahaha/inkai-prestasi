@@ -79,6 +79,7 @@ export default function PengajuanPrestasiPage() {
                 required
                 className="w-full border border-slate-300 bg-white p-3 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
               >
+                <option value="">Pilih Jenis Kejuaraan...</option>
                 <option value="Open">Open</option>
                 <option value="Festival">Festival</option>
               </select>
@@ -90,7 +91,7 @@ export default function PengajuanPrestasiPage() {
               <select
                 name="peringkat"
                 required
-                className="w-full border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-slate-300 bg-white p-3 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Pilih Peringkat...</option>
                 <option value="Juara 1">Juara 1</option>
@@ -105,7 +106,7 @@ export default function PengajuanPrestasiPage() {
               <select
                 name="tingkatKejuaraan"
                 required
-                className="w-full border border-slate-300 p-2 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-slate-300 bg-white p-3 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Pilih Tingkat...</option>
                 <option value="Kabupaten/Kota">Kabupaten/Kota</option>

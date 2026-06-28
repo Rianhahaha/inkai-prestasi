@@ -82,3 +82,13 @@ export const sabukOptions = [
   'Hitam Dan 4',
   'Hitam Dan 5',
 ]
+
+export const categoryOptions = [
+  'Kegiatan',
+  'Kejuaraan',
+  'Ujian',
+  'Pelatihan',
+  'Pengumuman',
+  'Berita',
+  'Lainnya',
+]

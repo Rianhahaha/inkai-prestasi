@@ -229,11 +229,19 @@ export interface Konten {
    * Muncul sebagai deskripsi singkat di card UI.
    */
   ringkasan: string;
-  kategori: 'Kejuaraan' | 'Pengumuman' | 'Berita' | 'Lainnya';
+  kategori: 'Kegiatan' | 'Kejuaraan' | 'Ujian' | 'Pelatihan' | 'Pengumuman' | 'Berita' | 'Lainnya';
   /**
-   * Contoh: 28-30 Agustus 2026
+   * Tanggal mulai pelaksanaan kegiatan.
    */
-  tanggalPelaksanaan?: string | null;
+  tanggalMulai?: string | null;
+  /**
+   * Kosongkan jika kegiatan hanya satu hari.
+   */
+  tanggalSelesai?: string | null;
+  /**
+   * Otomatis diisi saat status dipublikasikan.
+   */
+  publishedAt?: string | null;
   /**
    * Contoh: GOR Amongrogo
    */
@@ -419,7 +427,9 @@ export interface KontenSelect<T extends boolean = true> {
   judul?: T;
   ringkasan?: T;
   kategori?: T;
-  tanggalPelaksanaan?: T;
+  tanggalMulai?: T;
+  tanggalSelesai?: T;
+  publishedAt?: T;
   lokasi?: T;
   thumbnail?: T;
   isiKonten?: T;

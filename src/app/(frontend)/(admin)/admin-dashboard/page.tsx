@@ -41,7 +41,7 @@ export default async function AdminDashboardPage() {
               <span className="card-title mb-0!">Total Atlet</span>
               <div>
                 <span className="font-bold text-[27px]">{atlet.totalDocs} </span>
-                <span>Atlet </span>
+                <span className="text-[15px] text-slate-500 font-medium">Atlet </span>
               </div>
             </div>
           </div>
@@ -54,7 +54,7 @@ export default async function AdminDashboardPage() {
               <span className="card-title mb-0!">Total Prestasi</span>
               <div>
                 <span className="font-bold text-[27px]">{totalAchievements.totalDocs} </span>
-                <span>Atlet </span>
+                <span className="text-[15px] text-slate-500 font-medium">Prestasi </span>
               </div>
             </div>
           </div>
@@ -67,7 +67,7 @@ export default async function AdminDashboardPage() {
               <span className="card-title mb-0!">Pending</span>
               <div>
                 <span className="font-bold text-[27px]">{pendingAchievements.totalDocs} </span>
-                <span>Atlet </span>
+                <span className="text-[15px] text-slate-500 font-medium">Pending </span>
               </div>
             </div>
           </div>

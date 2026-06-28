@@ -3,9 +3,10 @@ import React from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import Link from 'next/link'
-import { CalendarDays, MapPin, Plus, Image as ImageIcon } from 'lucide-react'
+import { CalendarDays, MapPin, Plus, Image as ImageIcon, Edit } from 'lucide-react'
 import SearchBar from '@/app/(frontend)/components/SearchBar'
 import PaginationControls from '@/app/(frontend)/components/PaginationControls'
+import KontenCard from '@/app/(frontend)/components/KontenCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -109,67 +110,7 @@ export default async function KelolaKontenPage({ searchParams }: PageProps) {
             <p>Tidak ada konten {currentStatus} yang ditemukan.</p>
           </div>
         ) : (
-          kontenData.docs.map((item: any) => {
-            const thumbnailUrl = getMediaUrl(item.thumbnail)
-
-            return (
-              <div
-                key={item.id}
-                className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col h-full"
-              >
-                {/* Thumbnail Area */}
-                <div className="relative h-48 bg-slate-100 w-full shrink-0 flex items-center justify-center overflow-hidden">
-                  {thumbnailUrl ? (
-                    <img
-                      src={thumbnailUrl}
-                      alt={item.judul}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <ImageIcon className="w-8 h-8 text-slate-300" />
-                  )}
-                  {/* Category Badge absolute */}
-                  <div className="absolute top-4 left-4 bg-blue-500/90 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded">
-                    {item.kategori}
-                  </div>
-                </div>
-
-                {/* Content Area */}
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="font-bold text-slate-800 text-[16px] leading-snug line-clamp-2 mb-3">
-                    {item.judul}
-                  </h3>
-
-                  {/* Meta Data */}
-                  <div className="flex flex-col gap-1.5 mb-4">
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <CalendarDays className="w-4 h-4 text-blue-500 shrink-0" />
-                      <span className="truncate">{item.tanggalPelaksanaan || '-'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <MapPin className="w-4 h-4 text-blue-500 shrink-0" />
-                      <span className="truncate">{item.lokasi || '-'}</span>
-                    </div>
-                  </div>
-
-                  {/* Ringkasan */}
-                  <p className="text-sm text-slate-600 line-clamp-3 mb-5 flex-grow">
-                    {item.ringkasan}
-                  </p>
-
-                  {/* Action Link: Edit via Native Admin */}
-                  <div className="mt-auto pt-4 border-t border-slate-100">
-                    <a
-                      href={`/superadmin/collections/konten/${item.id}`}
-                      className="text-blue-500 text-sm font-semibold hover:text-blue-700 transition-colors inline-block"
-                    >
-                      Lihat detail / Edit
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )
-          })
+          kontenData.docs.map((item: any) => <KontenCard key={item.id} item={item} />)
         )}
       </div>
 

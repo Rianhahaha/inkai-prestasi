@@ -2,10 +2,11 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { User2 } from 'lucide-react'
+import { StarIcon, User2 } from 'lucide-react'
 import PaginationControls from '@/app/(frontend)/components/PaginationControls'
 import SearchBar from '@/app/(frontend)/components/SearchBar'
 import { calculatePoints, POINT_MATRIX } from '@/lib/points'
+import Podium from '@/app/(frontend)/components/Podium'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,16 +32,14 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
     queryWhere.namaLengkap = { contains: searchTerm }
   }
 
-  const [podiumData, tableData] = await Promise.all([
-    // Query A: Global Top 3 (Statis, kebal terhadap search & pagination)
+  const [podiumData, tableData, globalRanking] = await Promise.all([
     payload.find({
       collection: 'users',
       where: { role: { equals: 'athlete' } },
       sort: '-totalPoin',
       limit: 3,
-      depth: 1, // Ekstrak URL relasi fotoProfil
+      depth: 1,
     }),
-    // Query B: Paginated & Filtered Table
     payload.find({
       collection: 'users',
       where: queryWhere,
@@ -49,12 +48,22 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
       limit: limitPerPage,
       depth: 1,
     }),
+    payload.find({
+      collection: 'users',
+      where: { role: { equals: 'athlete' } },
+      sort: '-totalPoin',
+      limit: 0,
+      depth: 0,
+      select: { totalPoin: true },
+    }),
   ])
 
+  // Build rank map: { [userId]: rank }
+  const rankMap = new Map<number, number>(
+    globalRanking.docs.map((doc, index) => [doc.id, index + 1]),
+  )
+
   const top3 = podiumData.docs
-  const rank1 = top3[0]
-  const rank2 = top3[1]
-  const rank3 = top3[2]
 
   // 2. Utilitas Visual
   const getBeltColor = (sabuk: string) => {
@@ -82,75 +91,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
       <h1 className="font-medium text-[32px] text-slate-800">Leaderboard</h1>
 
       {/* 3. PODIUM COMPONENT (Hanya tampil di halaman 1 dan jika tidak sedang mencari) */}
-      {!searchTerm && currentPage === 1 && top3.length > 0 && (
-        <div className="flex justify-center items-end gap-4 mt-8 mb-4 h-[300px]">
-          {/* Rank 2 (Kiri) */}
-          {rank2 && (
-            <div className="flex flex-col items-center bg-slate-50 border border-slate-200 rounded-t-3xl w-64 p-6 pt-10 relative h-[80%]">
-              <div className="absolute -top-6 bg-slate-300 text-white w-10 h-10 flex items-center justify-center font-bold text-xl clip-star">
-                2
-              </div>
-              <div className="w-24 h-24 rounded-full border-4 border-white shadow-md mb-4 bg-amber-100 flex items-center justify-center overflow-hidden">
-                {getAvatarUrl(rank1.fotoProfil) ? (
-                  <img
-                    src={getAvatarUrl(rank1.fotoProfil)!}
-                    alt="Rank 1"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User2 className="w-10 h-10 text-amber-400" />
-                )}
-              </div>{' '}
-              <h3 className="font-bold text-lg text-center truncate w-full">{rank2.namaLengkap}</h3>
-              <p className="font-bold text-slate-400 text-xl mt-1">{rank2.totalPoin} poin</p>
-            </div>
-          )}
-
-          {/* Rank 1 (Tengah) */}
-          {rank1 && (
-            <div className="flex flex-col items-center bg-amber-50 border border-amber-200 rounded-t-3xl w-72 p-6 pt-12 relative h-full shadow-lg z-10">
-              <div className="absolute -top-8 bg-amber-400 text-white w-14 h-14 flex items-center justify-center font-bold text-2xl clip-star shadow-sm">
-                1
-              </div>
-              <div className="w-24 h-24 rounded-full border-4 border-white shadow-md mb-4 bg-amber-100 flex items-center justify-center overflow-hidden">
-                {getAvatarUrl(rank1.fotoProfil) ? (
-                  <img
-                    src={getAvatarUrl(rank1.fotoProfil)!}
-                    alt="Rank 1"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User2 className="w-10 h-10 text-amber-400" />
-                )}
-              </div>
-              <h3 className="font-bold text-xl text-center truncate w-full">{rank1.namaLengkap}</h3>
-              <p className="font-bold text-amber-500 text-2xl mt-1">{rank1.totalPoin} poin</p>
-            </div>
-          )}
-
-          {/* Rank 3 (Kanan) */}
-          {rank3 && (
-            <div className="flex flex-col items-center bg-orange-50 border border-orange-200 rounded-t-3xl w-64 p-6 pt-10 relative h-[70%]">
-              <div className="absolute -top-6 bg-orange-400 text-white w-10 h-10 flex items-center justify-center font-bold text-xl clip-star">
-                3
-              </div>
-              <div className="w-24 h-24 rounded-full border-4 border-white shadow-md mb-4 bg-amber-100 flex items-center justify-center overflow-hidden">
-                {getAvatarUrl(rank1.fotoProfil) ? (
-                  <img
-                    src={getAvatarUrl(rank1.fotoProfil)!}
-                    alt="Rank 1"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User2 className="w-10 h-10 text-amber-400" />
-                )}
-              </div>{' '}
-              <h3 className="font-bold text-lg text-center truncate w-full">{rank3.namaLengkap}</h3>
-              <p className="font-bold text-orange-500 text-xl mt-1">{rank3.totalPoin} poin</p>
-            </div>
-          )}
-        </div>
-      )}
+      {!searchTerm && currentPage === 1 && top3.length > 0 && <Podium top3={top3} />}
 
       {/* 4. TABEL DATA (Persis seperti format Data Atlet) */}
       <div className="flex flex-col gap-4">
@@ -186,7 +127,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
                       doc.tingkatKejuaraan,
                       doc.peringkat,
                     )
-                    const absoluteRank = (currentPage - 1) * limitPerPage + index + 1
+                    const absoluteRank = rankMap.get(doc.id) ?? index + 1
 
                     // Indikator Warna Rank (Hanya untuk Top 3)
                     let rankColor = 'text-slate-700 font-bold'

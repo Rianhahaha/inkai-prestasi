@@ -5,9 +5,12 @@ import config from '@payload-config'
 import { Users, User2, Plus } from 'lucide-react'
 import Link from 'next/link'
 import PaginationControls from '@/app/(frontend)/components/PaginationControls'
-import { formatDate } from '@/lib/utils'
+import { formatDate, sabukOptions } from '@/lib/utils'
 import SearchBar from '@/app/(frontend)/components/SearchBar'
 import AthleteFormModal from './AthleteFormModal'
+import TableFilter, { FilterConfig } from '@/app/(frontend)/components/TableFilter'
+import { buildSortParam } from '@/lib/buildSortParam'
+import SortableTableHeader from '@/app/(frontend)/components/SortableTableHeader'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -27,6 +30,10 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
   const modalAction = resolvedParams.action // 'tambah' atau 'edit'
   const modalId = resolvedParams.id
   let modalInitialData = null
+  const filterSabuk = resolvedParams.sabuk ? resolvedParams.sabuk.split(',') : []
+
+  const sortField = resolvedParams.sort
+  const sortDir = resolvedParams.dir
 
   if (modalAction === 'edit' && modalId) {
     try {
@@ -42,21 +49,27 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
 
   // 1. Eksekusi Query Dinamis (dengan Omnisearch jika diperlukan)
   const queryWhere: any = {
-    role: { equals: 'athlete' },
+    and: [{ role: { equals: 'athlete' } }],
   }
 
   if (searchTerm) {
     queryWhere.or = [{ namaLengkap: { contains: searchTerm } }, { email: { contains: searchTerm } }]
   }
 
+  if (filterSabuk.length > 0) {
+    queryWhere.and.push({ sabuk: { in: filterSabuk } })
+  }
+
   const tableData = await payload.find({
     collection: 'users',
     where: queryWhere,
     depth: 0, // Kedalaman 0 cukup untuk data profil dasar
-    sort: '-createdAt',
+    sort: buildSortParam(sortField, sortDir, '-createdAt'),
     page: currentPage,
     limit: limitPerPage,
   })
+
+  // console.log(tableData)
 
   // 2. Fungsi Ekstraksi Warna Sabuk Berdasarkan String Database
   const getBeltColor = (sabuk: string) => {
@@ -70,6 +83,16 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
     if (s.includes('hitam')) return 'bg-slate-800 text-white border-slate-900'
     return 'bg-slate-100 text-slate-700 border-slate-200'
   }
+  // console.log(sabukOptions)
+  const sabukFilters: FilterConfig[] = [
+    {
+      key: 'sabuk',
+      placeholder: 'Filter Sabuk',
+      options: sabukOptions.map((sabuk) => ({ label: sabuk, value: sabuk })),
+    },
+  ]
+  // console.log(getBeltColor)
+  // console.log(sabukFilters)
 
   return (
     <>
@@ -98,6 +121,8 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
         </div>
 
         <SearchBar placeholder="Cari nama atlet..." />
+        <TableFilter filters={sabukFilters} />
+
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
           {/* Table Toolbar */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
@@ -116,12 +141,14 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-200">
                   <th className="py-4 px-6 font-bold text-slate-700 text-sm">No.</th>
-                  <th className="py-4 px-6 font-bold text-slate-700 text-sm">Nama Atlet</th>
-                  <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">Sabuk</th>
-                  <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">
-                    Total Poin
-                  </th>
-                  <th className="py-4 px-6 font-bold text-slate-700 text-sm">Email</th>
+                  <SortableTableHeader label="Nama Atlet" sortKey="namaLengkap" />
+                  <SortableTableHeader label="Sabuk" sortKey="sabuk" className="text-center" />
+                  <SortableTableHeader
+                    label="Total Poin"
+                    sortKey="totalPoin"
+                    className="text-center"
+                  />
+                  <SortableTableHeader label="Email" sortKey="email" />
                   <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">Aksi</th>
                 </tr>
               </thead>

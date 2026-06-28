@@ -18,7 +18,7 @@ export default function BackToDashboard({ user }: BackToDashboardProps) {
   return (
     <div style={{ padding: '0 1.5rem 1rem 1.5rem' }}>
       <a
-        href="/admin-dashboard"
+        href="/admin-dashboard/konten"
         style={{
           display: 'block',
           textAlign: 'center',

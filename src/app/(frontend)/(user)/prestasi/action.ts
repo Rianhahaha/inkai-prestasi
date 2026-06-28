@@ -43,21 +43,27 @@ export async function submitPrestasi(prevState: any, formData: FormData) {
     })
 
     // 3. Metadata Linking Operation
-    // 3. Metadata Linking Operation
     await payload.create({
       collection: 'achievements',
       data: {
         atlet: user.id,
         namaKejuaraan: formData.get('namaKejuaraan') as string,
         kategori: formData.get('kategori') as string,
-        peringkat: formData.get('peringkat') as any,
-        tingkatKejuaraan: formData.get('tingkatKejuaraan') as any,
+        peringkat: (formData.get('peringkat') as 'Juara 1' | 'Juara 2' | 'Juara 3') || 'Juara 1',
+        jenisKejuaraan: (formData.get('jenisKejuaraan') as 'Open' | 'Festival') || 'Open',
+        tingkatKejuaraan:
+          (formData.get('tingkatKejuaraan') as
+            | 'Kecamatan'
+            | 'Kabupaten/Kota'
+            | 'Provinsi'
+            | 'Nasional'
+            | 'Internasional') || 'Kabupaten/Kota',
         tanggalKejuaraan: formData.get('tanggalKejuaraan') as string,
         lokasiKejuaraan: formData.get('lokasiKejuaraan') as string,
         sertifikat: mediaDoc.id,
         status: 'pending',
       },
-    } as any) // <-- Casting seluruh objek argumen
+    }) // <-- Casting seluruh objek argumen
 
     // 4. Cache Invalidation
     // Clears the Next.js cache so the dashboard reflects the new pending state instantly

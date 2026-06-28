@@ -3,14 +3,31 @@ import React from 'react'
 import '@/app/globals.css' // Pindahkan import Tailwind ke sini agar bersifat global
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Image from 'next/image'
+import { getPayload } from 'payload'
+import { getCurrentUser } from '@/lib/auth'
+import config from '@payload-config'
+import { redirect } from 'next/navigation'
 
 export const metadata = {
   title: 'UKM Karate INKAI',
   description: 'Sistem Manajemen Pengajuan Prestasi',
 }
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const payload = await getPayload({ config })
+  const user = await getCurrentUser()
+
+  if (user) {
+    redirect('/dashboard')
+  }
+
+  // const isProfileComplete = Boolean(user.sabuk && user.nomorTelepon && user.tanggalLahir)
+
+  // if (isProfileComplete) {
+  //   redirect('/dashboard')
+  // }
   console.log('[DEBUG] Google Client ID:', process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)
+
   return (
     <html lang="id">
       <body className="antialiased  text-slate-900">

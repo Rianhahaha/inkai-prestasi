@@ -7,6 +7,9 @@ import { StatusBadge, TingkatBadge } from '../../components/Badges'
 import StatCard from './StatCard'
 import PaginationControls from '@/app/(frontend)/components/PaginationControls'
 import SearchBar from '@/app/(frontend)/components/SearchBar'
+import TableFilter, { FilterConfig } from '@/app/(frontend)/components/TableFilter'
+import { buildSortParam } from '@/lib/buildSortParam'
+import SortableTableHeader from '@/app/(frontend)/components/SortableTableHeader'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 type PageProps = {
@@ -21,6 +24,13 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
   const currentPage = Number(resolvedParams.page) || 1
   const limitPerPage = 10
   const searchTerm = resolvedParams.search || ''
+  const filterPeringkat = resolvedParams.peringkat ? resolvedParams.peringkat.split(',') : []
+  const filterJenis = resolvedParams.jenisKejuaraan ? resolvedParams.jenisKejuaraan.split(',') : []
+  const filterTingkat = resolvedParams.tingkat ? resolvedParams.tingkat.split(',') : []
+
+  const sortField = resolvedParams.sort
+  const sortDir = resolvedParams.dir
+
   const [pendingCount, approvedCount, rejectedCount] = await Promise.all([
     payload.count({ collection: 'achievements', where: { status: { equals: 'pending' } } }),
     payload.count({ collection: 'achievements', where: { status: { equals: 'approved' } } }),
@@ -45,14 +55,57 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
       ],
     })
   }
+  if (filterPeringkat.length > 0) {
+    queryWhere.and.push({ peringkat: { in: filterPeringkat } })
+  }
+
+  if (filterTingkat.length > 0) {
+    queryWhere.and.push({ tingkatKejuaraan: { in: filterTingkat } })
+  }
+
+  if (filterJenis.length > 0) {
+    queryWhere.and.push({ jenisKejuaraan: { in: filterJenis } })
+  }
   const tableData = await payload.find({
     collection: 'achievements',
     where: queryWhere,
     depth: 2,
-    sort: 'createdAt',
+    sort: buildSortParam(sortField, sortDir, '-createdAt'),
     limit: limitPerPage,
     page: currentPage,
   })
+
+  console.log(tableData)
+
+  const prestasiFilters: FilterConfig[] = [
+    {
+      key: 'peringkat',
+      placeholder: 'Filter Peringkat',
+      options: [
+        { label: 'Juara 1', value: 'Juara 1' },
+        { label: 'Juara 2', value: 'Juara 2' },
+        { label: 'Juara 3', value: 'Juara 3' },
+      ],
+    },
+    {
+      key: 'jenisKejuaraan',
+      placeholder: 'Filter Jenis',
+      options: [
+        { label: 'Open', value: 'Open' },
+        { label: 'Festival', value: 'Festival' },
+      ],
+    },
+    {
+      key: 'tingkat',
+      placeholder: 'Filter Tingkat',
+      options: [
+        { label: 'Kabupaten/Kota', value: 'Kabupaten/Kota' },
+        { label: 'Provinsi', value: 'Provinsi' },
+        { label: 'Nasional', value: 'Nasional' },
+        { label: 'Internasional', value: 'Internasional' },
+      ],
+    },
+  ]
 
   return (
     <>
@@ -90,6 +143,7 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
         <p className="text-slate-500">Daftar pengajuan prestasi yang membutuhkan peninjauan.</p>
       </div> */}
         <SearchBar placeholder="Cari nama atlet..." />
+        <TableFilter filters={prestasiFilters} />
       </div>
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-5">
         {/* Header Section dengan Icon */}
@@ -105,11 +159,15 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
             <thead>
               <tr className="border-b border-slate-200">
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm">No.</th>
-                <th className="py-4 px-6 font-bold text-slate-800 text-sm">Nama Atlet</th>
-                <th className="py-4 px-6 font-bold text-slate-800 text-sm">Nama Kejuaraan</th>
+                <SortableTableHeader label="Nama Atlet" sortKey="atlet.namaLengkap" />
+                <SortableTableHeader label="Nama Kejuaraan" sortKey="namaKejuaraan" />
+                <SortableTableHeader label="Juara" sortKey="peringkat" />
+                <SortableTableHeader label="Jenis Kejuaraan" sortKey="jenisKejuaraan" />
+                <SortableTableHeader label="Tingkat" sortKey="tingkatKejuaraan" />
+                {/* <th className="py-4 px-6 font-bold text-slate-800 text-sm">Nama Kejuaraan</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm">Juara</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm">Jenis Kejuaraan</th>
-                <th className="py-4 px-6 font-bold text-slate-800 text-sm text-center">Tingkat</th>
+                <th className="py-4 px-6 font-bold text-slate-800 text-sm text-center">Tingkat</th> */}
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm text-center">Status</th>
                 <th className="py-4 px-6 font-bold text-slate-800 text-sm text-center">Aksi</th>
               </tr>
@@ -146,10 +204,10 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
                     <td className="py-4 px-6 text-sm text-slate-800 text-center">
                       {doc.jenisKejuaraan}
                     </td>
-                    <td className="py-4 px-6 text-center flex justify-center">
+                    <td className="py-4 px-6 text-center ">
                       <TingkatBadge tingkat={doc.tingkatKejuaraan} />
                     </td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="py-4 px-6 text-center  ">
                       <StatusBadge status={doc.status} />
                     </td>
                     <td className="py-4 px-6 text-center">

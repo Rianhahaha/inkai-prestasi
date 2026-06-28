@@ -9,10 +9,25 @@ import { getCurrentUser } from '@/lib/auth'
 // Import Presenter Component
 import AchievementTableClient from './AchievementTableClient'
 import { AthleteStatsGrid } from '../components/AthleteStatsGrid'
-
-export default async function PrestasiSayaPage() {
+type PageProps = {
+  searchParams: Promise<{ [key: string]: string | undefined }>
+}
+export default async function PrestasiSayaPage({ searchParams }: PageProps) {
   const payload = await getPayload({ config })
   const user = await getCurrentUser()
+
+  const resolvedParams = await searchParams
+  const currentPage = Number(resolvedParams.page) || 1
+  const limitPerPage = 10
+  const searchTerm = resolvedParams.search || ''
+
+  const queryWhere: any = {
+    and: [{ role: { equals: 'athlete' } }],
+  }
+
+  if (searchTerm) {
+    queryWhere.or = [{ namaLengkap: { contains: searchTerm } }, { email: { contains: searchTerm } }]
+  }
 
   if (!user) return null
 
@@ -25,6 +40,15 @@ export default async function PrestasiSayaPage() {
     sort: '-createdAt',
     depth: 0,
   })
+
+  const [approvedCount] = await Promise.all([
+    payload.count({
+      collection: 'achievements',
+      where: {
+        and: [{ atlet: { equals: user.id } }],
+      },
+    }),
+  ])
 
   const serializedDocs = myAchievements.docs.map((doc: any) => ({
     ...doc,
@@ -51,7 +75,7 @@ export default async function PrestasiSayaPage() {
       </div>
       <AthleteStatsGrid
         totalPoin={user?.totalPoin || 0}
-        totalPrestasi={0}
+        totalPrestasi={approvedCount.totalDocs || 0}
         sabuk={user?.sabuk || 'Putih'}
       />
 

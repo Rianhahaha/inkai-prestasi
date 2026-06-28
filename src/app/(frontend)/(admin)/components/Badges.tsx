@@ -15,7 +15,9 @@ export const TingkatBadge = ({ tingkat }: { tingkat: string }) => {
   const currentStyle = styles[tingkat] || 'bg-slate-100 text-slate-600'
 
   return (
-    <span className={`px-4 py-1.5 min-w-[10rem] rounded-md text-xs font-semibold ${currentStyle}`}>
+    <span
+      className={`flex justify-center px-4 py-1.5 min-w-[10rem] rounded-md text-xs font-semibold ${currentStyle}`}
+    >
       {tingkat}
     </span>
   )
@@ -46,7 +48,9 @@ export const StatusBadge = ({ status }: { status: string }) => {
   const currentLabel = labels[status] || status
 
   return (
-    <span className={`px-4 py-1.5 rounded-md text-xs font-semibold ${currentStyle}`}>
+    <span
+      className={`flex justify-center px-4 py-1.5 min-w-[10rem] h-fit rounded-md text-xs font-semibold ${currentStyle}`}
+    >
       {currentLabel}
     </span>
   )
