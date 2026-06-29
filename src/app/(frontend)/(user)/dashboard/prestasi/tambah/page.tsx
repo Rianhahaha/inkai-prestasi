@@ -3,7 +3,7 @@
 
 import React, { useActionState } from 'react'
 import Link from 'next/navigation' // Jika ingin menggunakan navigasi balik kustom
-import { submitPrestasi } from '@/app/(frontend)/(user)/prestasi/action'
+import { submitPrestasi } from '@/app/(frontend)/(user)/dashboard/prestasi/action'
 
 export default function PengajuanPrestasiPage() {
   const [state, formAction, isPending] = useActionState(submitPrestasi, null)

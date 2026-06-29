@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     achievements: Achievement;
     konten: Konten;
+    pengurus: Pengurus;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     achievements: AchievementsSelect<false> | AchievementsSelect<true>;
     konten: KontenSelect<false> | KontenSelect<true>;
+    pengurus: PengurusSelect<false> | PengurusSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -268,6 +270,30 @@ export interface Konten {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pengurus".
+ */
+export interface Pengurus {
+  id: number;
+  /**
+   * Pilih jika pengurus merupakan Atlet terdaftar. Nama & Foto akan terisi otomatis jika dikosongkan.
+   */
+  atlet?: (number | null) | User;
+  /**
+   * Biarkan kosong jika ingin mengambil nama otomatis dari akun Atlet di atas.
+   */
+  nama?: string | null;
+  divisi: 'Pengurus Inti' | 'Divisi Latihan' | 'Divisi Humas' | 'Divisi KRT/UU';
+  jabatan: 'Ketua' | 'Sekretaris' | 'Bendahara 1' | 'Bendahara 2' | 'Bendahara 3' | 'Koor' | 'Staf';
+  jurusan: string;
+  /**
+   * Biarkan kosong jika ingin mengambil foto profil dari akun Atlet di atas.
+   */
+  foto: number | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -305,6 +331,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'konten';
         value: number | Konten;
+      } | null)
+    | ({
+        relationTo: 'pengurus';
+        value: number | Pengurus;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -434,6 +464,20 @@ export interface KontenSelect<T extends boolean = true> {
   thumbnail?: T;
   isiKonten?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pengurus_select".
+ */
+export interface PengurusSelect<T extends boolean = true> {
+  atlet?: T;
+  nama?: T;
+  divisi?: T;
+  jabatan?: T;
+  jurusan?: T;
+  foto?: T;
   updatedAt?: T;
   createdAt?: T;
 }

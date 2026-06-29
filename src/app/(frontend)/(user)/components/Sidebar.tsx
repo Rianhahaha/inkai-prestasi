@@ -10,9 +10,9 @@ export function Sidebar() {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Prestasi Saya', path: '/prestasi', icon: Trophy },
-    { name: 'Leaderboard', path: '/leaderboard', icon: Medal },
-    { name: 'Profil Saya', path: '/profil', icon: User },
+    { name: 'Prestasi Saya', path: '/dashboard/prestasi', icon: Trophy },
+    { name: 'Leaderboard', path: '/dashboard/leaderboard', icon: Medal },
+    { name: 'Profil Saya', path: '/dashboard/profil', icon: User },
   ]
 
   return (
@@ -33,7 +33,7 @@ export function Sidebar() {
         <nav className="mt-6 flex flex-col gap-2 px-4">
           {navItems.map((item) => {
             const isActive =
-              item.path === '/' ? pathname === item.path : pathname.startsWith(item.path)
+              item.path === '/dashboard' ? pathname === item.path : pathname.startsWith(item.path)
             const Icon = item.icon
             return (
               <Link

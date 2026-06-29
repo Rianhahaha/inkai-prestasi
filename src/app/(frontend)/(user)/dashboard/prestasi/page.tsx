@@ -8,7 +8,7 @@ import { getCurrentUser } from '@/lib/auth'
 
 // Import Presenter Component
 import AchievementTableClient from './AchievementTableClient'
-import { AthleteStatsGrid } from '../components/AthleteStatsGrid'
+import { AthleteStatsGrid } from '../../components/AthleteStatsGrid'
 type PageProps = {
   searchParams: Promise<{ [key: string]: string | undefined }>
 }

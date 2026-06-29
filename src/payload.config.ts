@@ -11,6 +11,7 @@ import { Achievements } from './collections/Achievements'
 import BackToDashboard from './components/BackToDashboard'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { Konten } from './collections/Konten'
+import { Pengurus } from './collections/Pengurus'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -30,7 +31,7 @@ export default buildConfig({
     },
   },
 
-  collections: [Users, Media, Achievements, Konten],
+  collections: [Users, Media, Achievements, Konten, Pengurus],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

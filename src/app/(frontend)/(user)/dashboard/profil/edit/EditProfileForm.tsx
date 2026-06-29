@@ -3,7 +3,7 @@
 
 import React, { useTransition, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateProfileAction } from '@/app/(frontend)/(user)/profil/edit/action' // Pastikan nama import sesuai
+import { updateProfileAction } from '@/app/(frontend)/(user)/dashboard/profil/edit/action' // Pastikan nama import sesuai
 import { Camera, Save } from 'lucide-react'
 import { sabukOptions } from '@/lib/utils'
 

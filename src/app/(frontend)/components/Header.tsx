@@ -1,8 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { getCurrentUser } from '@/lib/auth'
+import { LayoutDashboard, LogIn } from 'lucide-react'
 
-export default function Header() {
+export default async function Header() {
+  const user = await getCurrentUser()
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,10 +61,11 @@ export default function Header() {
           {/* CTA Button */}
           <div className="hidden md:flex">
             <Link
-              href="/daftar"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
+              href="/register"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 flex gap-3 py-2.5 rounded-lg font-semibold transition-colors"
             >
-              Daftar Sekarang
+              {user ? 'Dashboard' : 'Daftar Sekarang'}
+              {user ? <LayoutDashboard /> : <LogIn />}
             </Link>
           </div>
         </div>

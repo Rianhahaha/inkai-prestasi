@@ -1,11 +1,11 @@
-type EventStatus = 'akan-datang' | 'berlangsung' | 'selesai'
+type EventStatus = 'Akan datang' | 'Berlangsung' | 'Selesai'
 
-function getEventStatus(startDate?: string, endDate?: string): EventStatus {
-  if (!startDate) return 'akan-datang' // belum ada tanggal = anggap upcoming
+export function getEventStatus(startDate?: string, endDate?: string): EventStatus {
+  if (!startDate) return 'Akan datang' // belum ada tanggal = anggap upcoming
   const now = new Date()
   const start = new Date(startDate)
   const end = endDate ? new Date(endDate) : start // single-day event jika endDate kosong
-  if (now < start) return 'akan-datang'
-  if (now > end) return 'selesai'
-  return 'berlangsung'
+  if (now < start) return 'Akan datang'
+  if (now > end) return 'Selesai'
+  return 'Berlangsung'
 }

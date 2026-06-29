@@ -7,6 +7,8 @@ import PaginationControls from '@/app/(frontend)/components/PaginationControls'
 import SearchBar from '@/app/(frontend)/components/SearchBar'
 import { calculatePoints, POINT_MATRIX } from '@/lib/points'
 import Podium from '@/app/(frontend)/components/Podium'
+import { getLeaderboardData } from '@/app/api/getPayloadData'
+import { getBeltColor } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,51 +34,12 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
     queryWhere.namaLengkap = { contains: searchTerm }
   }
 
-  const [podiumData, tableData, globalRanking] = await Promise.all([
-    payload.find({
-      collection: 'users',
-      where: { role: { equals: 'athlete' } },
-      sort: '-totalPoin',
-      limit: 3,
-      depth: 1,
-    }),
-    payload.find({
-      collection: 'users',
-      where: queryWhere,
-      sort: '-totalPoin',
-      page: currentPage,
-      limit: limitPerPage,
-      depth: 1,
-    }),
-    payload.find({
-      collection: 'users',
-      where: { role: { equals: 'athlete' } },
-      sort: '-totalPoin',
-      limit: 0,
-      depth: 0,
-      select: { totalPoin: true },
-    }),
-  ])
-
-  // Build rank map: { [userId]: rank }
-  const rankMap = new Map<number, number>(
-    globalRanking.docs.map((doc, index) => [doc.id, index + 1]),
-  )
-
-  const top3 = podiumData.docs
-
+  const { top3, tableDocs, pagination } = await getLeaderboardData({
+    page: currentPage,
+    limit: limitPerPage,
+    search: searchTerm,
+  })
   // 2. Utilitas Visual
-  const getBeltColor = (sabuk: string) => {
-    if (!sabuk) return 'bg-slate-100 text-slate-700 border-slate-200'
-    const s = sabuk.toLowerCase()
-    if (s.includes('putih')) return 'bg-slate-50 text-slate-700 border-slate-300'
-    if (s.includes('kuning')) return 'bg-yellow-100 text-yellow-800 border-yellow-300'
-    if (s.includes('hijau')) return 'bg-green-100 text-green-800 border-green-300'
-    if (s.includes('biru')) return 'bg-blue-100 text-blue-800 border-blue-300'
-    if (s.includes('coklat')) return 'bg-[#d4a373]/30 text-[#8b5a2b] border-[#d4a373]'
-    if (s.includes('hitam')) return 'bg-slate-800 text-white border-slate-900'
-    return 'bg-slate-100 text-slate-700 border-slate-200'
-  }
 
   // Type Guard Helper: Ekstrak URL secara aman dari Payload Relationship Field
   const getAvatarUrl = (mediaField: any): string | null => {
@@ -114,20 +77,15 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
                 </tr>
               </thead>
               <tbody>
-                {tableData.docs.length === 0 ? (
+                {tableDocs.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-slate-500">
                       Tidak ada data atlet yang ditemukan.
                     </td>
                   </tr>
                 ) : (
-                  tableData.docs.map((doc: any, index: number) => {
-                    const rowPoints = calculatePoints(
-                      doc.jenisKejuaraan,
-                      doc.tingkatKejuaraan,
-                      doc.peringkat,
-                    )
-                    const absoluteRank = rankMap.get(doc.id) ?? index + 1
+                  tableDocs.map((doc: any, index: number) => {
+                    const absoluteRank = doc.absoluteRank
 
                     // Indikator Warna Rank (Hanya untuk Top 3)
                     let rankColor = 'text-slate-700 font-bold'
@@ -200,11 +158,11 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
 
           <PaginationControls
             currentPage={currentPage}
-            totalPages={tableData.totalPages}
-            hasNextPage={tableData.hasNextPage}
-            hasPrevPage={tableData.hasPrevPage}
-            nextPage={tableData.nextPage}
-            prevPage={tableData.prevPage}
+            totalPages={pagination.totalPages}
+            hasNextPage={pagination.hasNextPage}
+            hasPrevPage={pagination.hasPrevPage}
+            nextPage={pagination.nextPage}
+            prevPage={pagination.prevPage}
           />
         </div>
       </div>

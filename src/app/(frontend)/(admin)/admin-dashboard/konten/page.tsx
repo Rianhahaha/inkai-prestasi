@@ -7,6 +7,7 @@ import { CalendarDays, MapPin, Plus, Image as ImageIcon, Edit } from 'lucide-rea
 import SearchBar from '@/app/(frontend)/components/SearchBar'
 import PaginationControls from '@/app/(frontend)/components/PaginationControls'
 import KontenCard from '@/app/(frontend)/components/KontenCard'
+import { getKontenData } from '@/app/api/getPayloadData'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,26 +31,33 @@ export default async function KelolaKontenPage({ searchParams }: PageProps) {
     status: { equals: currentStatus },
   }
 
-  if (searchTerm) {
-    queryWhere.judul = { contains: searchTerm }
-  }
+  // if (searchTerm) {
+  //   queryWhere.judul = { contains: searchTerm }
+  // }
 
-  const kontenData = await payload.find({
-    collection: 'konten',
-    where: queryWhere,
-    sort: '-createdAt',
+  // const kontenData = await payload.find({
+  //   collection: 'konten',
+  //   where: queryWhere,
+  //   sort: '-createdAt',
+  //   page: currentPage,
+  //   limit: limitPerPage,
+  //   depth: 1, // Ekstrak URL Thumbnail
+  // })
+
+  // // 2. Type Guard Helper untuk Media Resolusion
+  // const getMediaUrl = (mediaField: any): string | null => {
+  //   if (typeof mediaField === 'object' && mediaField !== null && 'url' in mediaField) {
+  //     return mediaField.url as string
+  //   }
+  //   return null
+  // }
+
+  const { docs: kontenDocs, pagination } = await getKontenData({
+    status: currentStatus,
+    search: searchTerm,
     page: currentPage,
-    limit: limitPerPage,
-    depth: 1, // Ekstrak URL Thumbnail
+    limit: 0,
   })
-
-  // 2. Type Guard Helper untuk Media Resolusion
-  const getMediaUrl = (mediaField: any): string | null => {
-    if (typeof mediaField === 'object' && mediaField !== null && 'url' in mediaField) {
-      return mediaField.url as string
-    }
-    return null
-  }
 
   return (
     <div className="flex flex-col gap-6 w-full pb-10">
@@ -104,26 +112,26 @@ export default async function KelolaKontenPage({ searchParams }: PageProps) {
 
       {/* Grid Content Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
-        {kontenData.docs.length === 0 ? (
+        {kontenDocs.length === 0 ? (
           <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
             <ImageIcon className="w-12 h-12 mb-3 text-slate-300" />
             <p>Tidak ada konten {currentStatus} yang ditemukan.</p>
           </div>
         ) : (
-          kontenData.docs.map((item: any) => <KontenCard key={item.id} item={item} />)
+          kontenDocs.map((item: any) => <KontenCard key={item.id} item={item} />)
         )}
       </div>
 
       {/* Pagination Container */}
-      {kontenData.totalPages > 1 && (
+      {pagination.totalPages > 1 && (
         <div className="mt-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-center">
           <PaginationControls
             currentPage={currentPage}
-            totalPages={kontenData.totalPages}
-            hasNextPage={kontenData.hasNextPage}
-            hasPrevPage={kontenData.hasPrevPage}
-            nextPage={kontenData.nextPage}
-            prevPage={kontenData.prevPage}
+            totalPages={pagination.totalPages}
+            hasNextPage={pagination.hasNextPage}
+            hasPrevPage={pagination.hasPrevPage}
+            nextPage={pagination.nextPage}
+            prevPage={pagination.prevPage}
           />
         </div>
       )}

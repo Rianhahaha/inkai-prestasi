@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react'
 import { calculatePoints } from '@/lib/points'
-import AthleteDetailModal from '../components/AthleteDetailModal'
+import AthleteDetailModal from '../../components/AthleteDetailModal'
 
 // 2. Re-styled Status Badge
 const StatusBadge = ({ status }: { status: string }) => {

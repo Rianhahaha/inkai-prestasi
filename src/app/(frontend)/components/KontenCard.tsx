@@ -50,7 +50,7 @@ export default function KontenCard({ item, adminBasePath = '/superadmin' }: Kont
 
         <div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
           <a
-            href={`#`}
+            href={`konten/detail/${item.id}`}
             className="text-blue-500 text-sm font-semibold hover:text-blue-700 transition-colors inline-block hover:underline"
           >
             Lihat detail

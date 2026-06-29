@@ -92,3 +92,27 @@ export const categoryOptions = [
   'Berita',
   'Lainnya',
 ]
+
+export const JABATAN_OPTIONS = [
+  'Ketua',
+  'Sekretaris',
+  'Bendahara 1',
+  'Bendahara 2',
+  'Bendahara 3',
+  'Koor',
+  'Staf',
+]
+
+export const DIVISI_OPTIONS = ['Pengurus Inti', 'Divisi Latihan', 'Divisi Humas', 'Divisi KRT/UU']
+
+export const getBeltColor = (sabuk: string) => {
+  if (!sabuk) return 'bg-slate-100 text-slate-700 border-slate-200'
+  const s = sabuk.toLowerCase()
+  if (s.includes('putih')) return 'bg-slate-50 text-slate-700 border-slate-300'
+  if (s.includes('kuning')) return 'bg-yellow-100 text-yellow-800 border-yellow-300'
+  if (s.includes('hijau')) return 'bg-green-100 text-green-800 border-green-300'
+  if (s.includes('biru')) return 'bg-blue-100 text-blue-800 border-blue-300'
+  if (s.includes('coklat')) return 'bg-[#d4a373]/30 text-[#8b5a2b] border-[#d4a373]'
+  if (s.includes('hitam')) return 'bg-slate-800 text-white border-slate-900'
+  return 'bg-slate-100 text-slate-700 border-slate-200'
+}

@@ -1,5 +1,5 @@
 /* src/app/globals.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Anda bisa menambahkan custom utility atau theme variables di bawah sini nanti */
 @theme {
@@ -14,5 +14,66 @@
   @apply text-[20px] text-black font-bold mb-4;
 }
 @utility hovered {
-  @apply transition-all duration-200 ease-in-out
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Lexical Content */
+.payload-richtext h1 {
+  @apply text-3xl font-black text-slate-800 mb-4 mt-6;
+}
+.payload-richtext h2 {
+  @apply text-2xl font-black text-slate-800 mb-3 mt-5;
+}
+.payload-richtext h3 {
+  @apply text-xl font-bold text-slate-800 mb-2 mt-4;
+}
+.payload-richtext h4 {
+  @apply text-lg font-bold text-slate-700 mb-2 mt-4;
+}
+
+.payload-richtext p {
+  @apply text-slate-600 leading-relaxed mb-3 text-justify;
+}
+
+.payload-richtext ul {
+  @apply list-disc list-outside pl-5 mb-2 space-y-1 text-slate-600;
+}
+.payload-richtext ol {
+  @apply list-decimal list-outside pl-5 mb-2 space-y-1 text-slate-600;
+}
+.payload-richtext li {
+  @apply leading-relaxed;
+}
+
+.payload-richtext a {
+  @apply text-blue-500 hover:text-blue-700 underline transition-colors break-all;
+}
+
+.payload-richtext strong {
+  @apply font-bold text-slate-800;
+}
+.payload-richtext em {
+  @apply italic;
+}
+
+.payload-richtext blockquote {
+  @apply border-l-4 border-blue-300 pl-4 py-1 my-4 text-slate-500 italic;
+}
+
+.payload-richtext code {
+  @apply bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+.payload-richtext pre {
+  @apply bg-slate-900 text-slate-100 p-4 rounded-xl overflow-x-auto mb-4;
+}
+.payload-richtext pre code {
+  @apply bg-transparent text-slate-100 p-0;
+}
+
+.payload-richtext hr {
+  @apply border-slate-200 my-6;
+}
+
+.payload-richtext img {
+  @apply rounded-xl w-full object-center  object-contain my-4;
 }
