@@ -243,7 +243,7 @@ export default async function LandingPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {/* Dummy Template Card - Rendered 4 times for visual parity */}
-              {pengurus.map((item, index) => (
+              {pengurus.map((item: any, index) => (
                 <div key={index} className="flex flex-col items-center group cursor-pointer">
                   {/* Image Wrapper */}
                   <div className="relative w-[300px] h-[350px] rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-shadow">
