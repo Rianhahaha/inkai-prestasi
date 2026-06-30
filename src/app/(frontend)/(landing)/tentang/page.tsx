@@ -1,6 +1,18 @@
+import { getPengurusList } from '@/app/api/getPayloadData'
 import React from 'react'
+import PengurusList from '../PengurusCarousel'
 
-export default function page() {
+export default async function page() {
+  const pengurus = await getPengurusList()
+  console.log('Pengurus :', pengurus)
+
+  const divisi1 = pengurus.filter
+
+  const pengurusInti = pengurus.filter((p) => p.divisi === 'Pengurus Inti')
+  const divisiLatihan = pengurus.filter((p) => p.divisi === 'Divisi Latihan')
+  const divisiHumas = pengurus.filter((p) => p.divisi === 'Divisi Humas')
+  const divisiKrt = pengurus.filter((p) => p.divisi === 'Divisi KRT/UU')
+
   return (
     <>
       <section className="w-full bg-[#C5DDFF] ">
@@ -36,18 +48,19 @@ export default function page() {
 
           {/* Right: Text Content */}
           <div className="flex flex-col gap-6  h-full">
-            <p className="text-slate-600 leading-relaxed text-lg">
-              {` Unit Kegiatan Mahasiswa Karate “INKAI” Universitas Negeri Yogyakarta merupakan salah
+            <p className="text-slate-600 leading-relaxed text-lg text-justify">
+              Unit Kegiatan Mahasiswa Karate “INKAI” Universitas Negeri Yogyakarta merupakan salah
               satu UKM yang menampung bakat di bidang Karate. Karate masuk di Universitas Negeri
-              Yogyakarta pada tanggal 3 Maret 1975, yang pada waktu itu masih bernama IKIP.
-               UKM Karate “INKAI” Universitas Negeri Yogyakarta didirikan oleh Senpai Yahya Wilis AS,
+              Yogyakarta pada tanggal 3 Maret 1975, yang pada waktu itu masih bernama IKIP. <br />{' '}
+              <br />
+              UKM Karate “INKAI” Universitas Negeri Yogyakarta didirikan oleh Senpai Yahya Wilis AS,
               Irwansyah SY, Samsul Bakrie, dan Yudiono yang kemudian diikuti oleh para karateka
               lain. UKM ini terbentuk di Pantai Parangkusumo, pada pendiri melakukan perjalanan
-              pulang dengan jalan kaki dari Pantai Parangkusumo menuju UNY. 
-              UKM Karate “INKAI” UNY
-              tidak hanya diikuti oleh mahasiswa, namun juga umum mulai dari anak-anak sampai dewasa
-              diluar universitas yang dinaungi suatu lembaga pembinaan olahraga di Universitas
-              Negeri Yogyakarta, yang disebut Selabora (Sekolah Laboratorium Olahraga).`}
+              pulang dengan jalan kaki dari Pantai Parangkusumo menuju UNY. <br /> <br />
+              UKM Karate “INKAI” UNY tidak hanya diikuti oleh mahasiswa, namun juga umum mulai dari
+              anak-anak sampai dewasa diluar universitas yang dinaungi suatu lembaga pembinaan
+              olahraga di Universitas Negeri Yogyakarta, yang disebut Selabora (Sekolah Laboratorium
+              Olahraga)
             </p>
           </div>
         </div>
@@ -64,7 +77,7 @@ export default function page() {
             Yogyakarta 55281
           </p>
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.151652411653!2d110.38292307483135!3d-7.773738977117686!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a59b3fe486afd%3A0xbdc9314940646b96!2sUNY%20Hotel!5e0!3m2!1sen!2sid!4v1782657319413!5m2!1sen!2sid"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.122782032506!2d110.3861139!3d-7.776803499999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a59c9a1bc4a43%3A0x2ca49ecd8efed3af!2sGOR%20Beladiri%20UNY!5e0!3m2!1sen!2sid!4v1782738365087!5m2!1sen!2sid"
             width="100%"
             height="450"
             allowFullScreen
@@ -82,55 +95,25 @@ export default function page() {
           <h3 className=" text-blue-500 font-semibold text-xl mb-10 text-center">
             - Pengurus Inti -
           </h3>
-          <div className="w-full flex flex-wrap gap-6 justify-center">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="flex flex-col items-center group cursor-pointer">
-                {/* Image Wrapper */}
-                <div className="relative w-[200px] h-[250px] rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-shadow">
-                  <img
-                    src={`https://i.pravatar.cc/300?img=${item + 10}`}
-                    alt="Pengurus"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  {/* Gradient Overlay at bottom for text readability if needed */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-blue-900/80 to-transparent"></div>
-
-                  {/* Name/Role Overlay inside image wrapper based on mockup */}
-                  <div className="absolute bottom-4 left-0 w-full text-center px-2">
-                    <h3 className="font-bold text-white text-sm">Nama Pengurus</h3>
-                    <p className="text-blue-200 text-xs">Jabatan Organisasi</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <PengurusList data={pengurusInti} variant="grid" />
         </div>
         <div className="w-full">
           <h3 className=" text-blue-500 font-semibold text-xl mb-10 text-center">
             - Divisi Latihan -
           </h3>
-          <div className="w-full flex flex-wrap gap-6 justify-center">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="flex flex-col items-center group cursor-pointer">
-                {/* Image Wrapper */}
-                <div className="relative w-[200px] h-[250px] rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-shadow">
-                  <img
-                    src={`https://i.pravatar.cc/300?img=${item + 10}`}
-                    alt="Pengurus"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  {/* Gradient Overlay at bottom for text readability if needed */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-blue-900/80 to-transparent"></div>
-
-                  {/* Name/Role Overlay inside image wrapper based on mockup */}
-                  <div className="absolute bottom-4 left-0 w-full text-center px-2">
-                    <h3 className="font-bold text-white text-sm">Nama Pengurus</h3>
-                    <p className="text-blue-200 text-xs">Jabatan Organisasi</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <PengurusList data={divisiLatihan} variant="grid" />
+        </div>
+        <div className="w-full">
+          <h3 className=" text-blue-500 font-semibold text-xl mb-10 text-center">
+            - Divisi Humas -
+          </h3>
+          <PengurusList data={divisiHumas} variant="grid" />
+        </div>
+        <div className="w-full">
+          <h3 className=" text-blue-500 font-semibold text-xl mb-10 text-center">
+            - Divisi KRT/UU -
+          </h3>
+          <PengurusList data={divisiKrt} variant="grid" />
         </div>
       </section>
     </>

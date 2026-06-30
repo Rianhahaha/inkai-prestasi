@@ -3,59 +3,33 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getCurrentUser } from '@/lib/auth'
 import { LayoutDashboard, LogIn } from 'lucide-react'
+import Navigation from './Navigation' // Sesuaikan path import
 
 export default async function Header() {
+  // Hanya eksekusi logika server di sini
   const user = await getCurrentUser()
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 shadow-sm">
+    <header className="sticky top-0 z-[9999999] w-full bg-white border-b border-slate-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo Area */}
           <div className="flex items-center gap-10">
             <div className="flex-shrink-0 flex items-center gap-2">
-              <div className="size-12  flex items-center justify-center text-white font-bold text-xl">
+              <div className="size-12 flex items-center justify-center text-white font-bold text-xl">
                 <Image
                   className="size-full"
                   src={'/images/logo.png'}
-                  alt=""
+                  alt="INKAI UNY Logo"
                   height={50}
                   width={50}
+                  priority // Tambahkan priority karena ini gambar LCP di header
                 />
               </div>
-              {/* <span className="font-bold text-xl text-slate-800">INKAI UNY</span> */}
             </div>
 
-            {/* Navigation Links */}
-            <nav className="hidden md:flex gap-8">
-              <Link href="/" className="text-blue-600 font-normal transition-all  ">
-                Beranda
-              </Link>
-              <Link
-                href="/tentang"
-                className="text-slate-600 hover:text-blue-600 font-normal transition-all "
-              >
-                Tentang
-              </Link>
-              <Link
-                href="/kegiatan"
-                className="text-slate-600 hover:text-blue-600 font-normal transition-all "
-              >
-                Kegiatan
-              </Link>
-              <Link
-                href="/atlet"
-                className="text-slate-600 hover:text-blue-600 font-normal transition-all "
-              >
-                Atlet
-              </Link>
-              <Link
-                href="/leaderboard"
-                className="text-slate-600 hover:text-blue-600 font-normal transition-all "
-              >
-                Leaderboard
-              </Link>
-            </nav>
+            {/* Client Navigation */}
+            <Navigation />
           </div>
 
           {/* CTA Button */}

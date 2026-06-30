@@ -95,7 +95,9 @@ export const categoryOptions = [
 
 export const JABATAN_OPTIONS = [
   'Ketua',
-  'Sekretaris',
+  'Wakil Ketua',
+  'Sekretaris 1',
+  'Sekretaris 2',
   'Bendahara 1',
   'Bendahara 2',
   'Bendahara 3',
@@ -115,4 +117,40 @@ export const getBeltColor = (sabuk: string) => {
   if (s.includes('coklat')) return 'bg-[#d4a373]/30 text-[#8b5a2b] border-[#d4a373]'
   if (s.includes('hitam')) return 'bg-slate-800 text-white border-slate-900'
   return 'bg-slate-100 text-slate-700 border-slate-200'
+}
+
+// src/lib/utils.ts — tambahkan function ini
+
+interface TransformOptions {
+  width?: number
+  height?: number
+  quality?: number
+  format?: 'origin' | 'avif' | 'webp'
+  resize?: 'cover' | 'contain' | 'fill'
+}
+
+export function getOptimizedImageUrl(
+  url: string | null | undefined,
+  options: TransformOptions = {},
+): string | null {
+  if (!url) return null
+
+  // Hanya transform URL Supabase
+  if (!url.includes('.supabase.co/storage/v1/object/public/')) return url
+
+  const { width = 800, quality = 80, format = 'webp', resize = 'cover' } = options
+
+  const transformedUrl = url.replace(
+    '/storage/v1/object/public/',
+    '/storage/v1/render/image/public/',
+  )
+
+  const params = new URLSearchParams({
+    width: width.toString(),
+    quality: quality.toString(),
+    format,
+    resize,
+  })
+
+  return `${transformedUrl}?${params.toString()}`
 }

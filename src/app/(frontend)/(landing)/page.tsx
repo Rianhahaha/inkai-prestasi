@@ -7,9 +7,11 @@ import { getKontenData, getLeaderboardData, getPengurusList } from '@/app/api/ge
 import Podium from '../components/Podium'
 import { getBeltColor } from '@/lib/utils'
 import KontenCard from '../components/KontenCard'
+import Image from 'next/image'
+import PengurusCarousel from './PengurusCarousel'
 export default async function LandingPage() {
   const pengurus = await getPengurusList()
-  console.log('Pengurus :', pengurus)
+  // console.log('Pengurus :', pengurus)
 
   const { top3, tableDocs } = await getLeaderboardData({
     limit: 5,
@@ -110,7 +112,7 @@ export default async function LandingPage() {
             {/* <div className="min-h-[300px] border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-400">
               [ Komponen Kegiatan Disini ]
             </div> */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2 text-left">
               {kontenDocs.length === 0 ? (
                 <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
                   <ImageIcon className="w-12 h-12 mb-3 text-slate-300" />
@@ -119,6 +121,15 @@ export default async function LandingPage() {
               ) : (
                 kontenDocs.map((item: any) => <KontenCard key={item.id} item={item} />)
               )}
+            </div>
+            <div className="flex justify-center w-full">
+              <Link
+                href="/register"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 flex gap-3 py-2.5 rounded-lg font-semibold transition-colors w-fit mt-5"
+              >
+                Lihat Selengkapnya
+                <ArrowRight />
+              </Link>
             </div>
           </div>
         </section>
@@ -233,40 +244,27 @@ export default async function LandingPage() {
                 </div>
               </div>
             </div>
+            <div className="flex justify-center w-full">
+              <Link
+                href="/register"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 flex gap-3 py-2.5 rounded-lg font-semibold transition-colors w-fit mt-5"
+              >
+                Lihat Leaderboard Lengkap
+                <ArrowRight />
+              </Link>
+            </div>
           </div>
         </section>
 
         {/* PENGURUS ORGANISASI SECTION */}
-        <section className="py-24 px-6 bg-white w-full">
+        <section className="py-24 px-6 bg-white w-full relative">
           <div className="max-w-7xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-blue-600 mb-12">Pengurus Organisasi</h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {/* Dummy Template Card - Rendered 4 times for visual parity */}
-              {pengurus.map((item: any, index) => (
-                <div key={index} className="flex flex-col items-center group cursor-pointer">
-                  {/* Image Wrapper */}
-                  <div className="relative w-[300px] h-[350px] rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-shadow">
-                    <img
-                      src={item?.foto.url}
-                      alt="Pengurus"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    {/* Gradient Overlay at bottom for text readability if needed */}
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#98C3FF] to-transparent"></div>
-
-                    {/* Name/Role Overlay inside image wrapper based on mockup */}
-                    <div className="absolute bottom-4 left-0 w-full text-center px-2 z-50">
-                      <p className="text-white text-sm font-semibold">{item?.jabatan}</p>
-                      <h3 className="font-bold text-white text-lg">{item?.nama}</h3>
-                      <p className="text-white text-sm">{item?.jurusan}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <PengurusCarousel data={pengurus} />
           </div>
         </section>
+        {/* <img src={getOptimizedImageUrl(item.thumbnail?.url, { width: 400, quality: 75 })} /> */}
 
         {/* CTA AYO BERGABUNG SECTION */}
         <section className="relative w-full py-24 flex items-center justify-center text-center px-6 mt-10">

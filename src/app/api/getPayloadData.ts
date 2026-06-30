@@ -2,13 +2,14 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Where } from 'payload'
+
 export async function getPengurusList() {
   const payload = await getPayload({ config })
   try {
     const data = await payload.find({
       collection: 'pengurus',
       depth: 1, // Agar relasi media/foto ter-resolve otomatis
-      sort: 'divisi', // Urutkan berdasarkan divisi
+      sort: 'jabatan', // Urutkan berdasarkan divisi
       limit: 100, // Sesuaikan dengan kebutuhan organisasi
     })
 

@@ -199,6 +199,24 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    avatar?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -283,7 +301,16 @@ export interface Pengurus {
    */
   nama?: string | null;
   divisi: 'Pengurus Inti' | 'Divisi Latihan' | 'Divisi Humas' | 'Divisi KRT/UU';
-  jabatan: 'Ketua' | 'Sekretaris' | 'Bendahara 1' | 'Bendahara 2' | 'Bendahara 3' | 'Koor' | 'Staf';
+  jabatan:
+    | 'Ketua'
+    | 'Wakil Ketua'
+    | 'Sekretaris 1'
+    | 'Sekretaris 2'
+    | 'Bendahara 1'
+    | 'Bendahara 2'
+    | 'Bendahara 3'
+    | 'Koor'
+    | 'Staf';
   jurusan: string;
   /**
    * Biarkan kosong jika ingin mengambil foto profil dari akun Atlet di atas.
@@ -429,6 +456,30 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        avatar?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

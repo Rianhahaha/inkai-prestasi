@@ -16,7 +16,7 @@ export default function KontenCard({ item, adminBasePath = '/superadmin' }: Kont
   }
   const thumbnailUrl = getMediaUrl(item.thumbnail)
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col h-full">
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col h-full text-left">
       {/* Thumbnail */}
       <div className="relative h-48 bg-slate-100 w-full shrink-0 flex items-center justify-center overflow-hidden">
         {thumbnailUrl ? (

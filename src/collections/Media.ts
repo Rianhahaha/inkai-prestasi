@@ -45,9 +45,21 @@ export const Media: CollectionConfig = {
     delete: ({ req: { user } }) => ['superadmin', 'admin'].includes(user?.role as string),
   },
   upload: {
+    formatOptions: {
+      format: 'webp',
+      options: {
+        quality: 80,
+      },
+    },
     disableLocalStorage: true,
+    imageSizes: [
+      { name: 'card', width: 600, height: 400 }, // untuk thumbnail card
+      { name: 'avatar', width: 120, height: 120 }, // untuk foto profil
+    ],
+
     mimeTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
   },
+
   fields: [
     {
       name: 'owner',
