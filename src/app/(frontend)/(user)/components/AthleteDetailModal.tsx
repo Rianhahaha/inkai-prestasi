@@ -348,65 +348,48 @@ export default function AthleteDetailModal({ doc, onClose }: AthleteDetailModalP
               {/* ... BLOCK FIELD READ-ONLY LO YG SEBELUMNYA ... */}
             </>
           )}
-          {/* <div className="flex flex-col gap-1">
-            <h4 className="font-bold text-lg text-slate-800">{doc.namaKejuaraan}</h4>
-            <span
-              className={`px-3 py-1 ${
-                doc?.status === 'approved'
-                  ? 'bg-green-100 text-green-700'
-                  : doc.status === 'pending'
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : 'bg-red-100 text-red-700'
-              } text-xs font-semibold rounded-md w-fit mt-1`}
-            >
-              {doc?.status === 'approved'
-                ? 'Disetujui'
-                : doc.status === 'pending'
-                  ? 'Menunggu Verifikasi'
-                  : 'Ditolak'}
-            </span>
-          </div> */}
-
           {/* Point Computation Section */}
-          <div className="border border-slate-200 rounded-xl overflow-hidden">
-            <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2 text-sm font-bold text-slate-700">
-              <Award className="w-4 h-4 text-orange-500" />
-              Sistem Poin
-            </div>
-            <div className="p-5 bg-white text-sm grid grid-cols-2 gap-6">
-              <div>
-                <div className="text-slate-400 font-medium mb-1">Status Poin</div>
-                <div
-                  className={`font-bold ${doc?.status === 'approved' ? 'text-blue-500' : 'text-slate-800'} text-lg`}
-                >
-                  {doc?.status === 'approved' ? `+${calculatedPoints} Poin` : 'Menunggu'}
-                </div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Potensi poin untuk{' '}
-                  <span className="font-semibold">
-                    {rankVisuals[doc.peringkat]?.label || doc.peringkat}
-                  </span>
-                </div>
+          <div className="h-auto">
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
+              <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2 text-sm font-bold text-slate-700">
+                <Award className="w-4 h-4 text-orange-500" />
+                Sistem Poin
               </div>
-
-              <div className="border-l border-slate-100 pl-6">
-                <div className="text-slate-400 font-medium mb-1">Referensi Skala</div>
-                <div className="text-blue-500 font-medium text-xs mb-2">
-                  Tingkat {currentTingkat} ({doc.jenisKejuaraan || 'Open'})
+              <div className="p-5 bg-white text-sm grid grid-cols-2 gap-6">
+                <div>
+                  <div className="text-slate-400 font-medium mb-1">Status Poin</div>
+                  <div
+                    className={`font-bold ${doc?.status === 'approved' ? 'text-blue-500' : 'text-slate-800'} text-lg`}
+                  >
+                    {doc?.status === 'approved' ? `+${calculatedPoints} Poin` : 'Menunggu'}
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    Potensi poin untuk{' '}
+                    <span className="font-semibold">
+                      {rankVisuals[doc.peringkat]?.label || doc.peringkat}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1 text-xs font-normal text-slate-500">
-                  {Object.entries(currentTingkatMatrix).map(([rank, val]) => {
-                    const visual = rankVisuals[rank] || { label: rank, color: 'text-slate-800' }
-                    return (
-                      <div
-                        key={rank}
-                        className={`${visual.color} flex justify-between max-w-[220px]`}
-                      >
-                        <span>{visual.label}</span>
-                        <span>{String(val)} poin</span>
-                      </div>
-                    )
-                  })}
+
+                <div className="border-l border-slate-100 pl-6">
+                  <div className="text-slate-400 font-medium mb-1">Referensi Skala</div>
+                  <div className="text-blue-500 font-medium text-xs mb-2">
+                    Tingkat {currentTingkat} ({doc.jenisKejuaraan || 'Open'})
+                  </div>
+                  <div className="flex flex-col gap-1 text-xs font-normal text-slate-500">
+                    {Object.entries(currentTingkatMatrix).map(([rank, val]) => {
+                      const visual = rankVisuals[rank] || { label: rank, color: 'text-slate-800' }
+                      return (
+                        <div
+                          key={rank}
+                          className={`${visual.color} flex justify-between max-w-[220px]`}
+                        >
+                          <span>{visual.label}</span>
+                          <span>{String(val)} poin</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>

@@ -62,7 +62,11 @@ function PodiumCard({ athlete, rank }: PodiumCardProps) {
       </div>
 
       {/* Avatar */}
-      <div className="w-24 h-24 rounded-full border-4 border-white shadow-md mb-4 bg-amber-100 flex items-center justify-center overflow-hidden">
+      <div
+        className={` ${
+          rank === 3 ? 'size-16' : rank === 2 ? 'size-20' : 'size-24'
+        } rounded-full border-4 border-white shadow-md mb-4 bg-amber-100 flex items-center justify-center overflow-hidden aspect-square`}
+      >
         {avatarUrl ? (
           <Image
             width={100}
