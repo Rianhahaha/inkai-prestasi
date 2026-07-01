@@ -12,7 +12,7 @@ export default function PengajuanPrestasiPage() {
     <div className="flex flex-col gap-6 max-w-2xl">
       {/* Breadcrumb / Back Navigation */}
       <div className="flex items-center gap-2 text-sm text-slate-500">
-        <a href="/prestasi" className="hover:text-blue-600 transition-colors">
+        <a href="/dashboard/prestasi" className="hover:text-blue-600 transition-colors">
           Prestasi Saya
         </a>
         <span>/</span>

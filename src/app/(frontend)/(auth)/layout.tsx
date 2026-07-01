@@ -46,7 +46,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
                 loading="eager"
               />
             </div>
-            <div className="w-full min-h-screen md:w-1/2 px-[10rem] py-10 bg-white flex justify-center items-start overflow-y-auto">
+            <div className="w-full min-h-screen md:w-1/2 px-10 py-10 bg-white flex justify-center items-start overflow-y-auto">
               <div className="w-full h-auto max-w-[38rem] shadow-2xl p-10 border border-black/10 rounded-2xl">
                 {children}
               </div>

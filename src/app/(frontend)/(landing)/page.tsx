@@ -27,7 +27,7 @@ export default async function LandingPage() {
         <section className="relative w-full h-screen flex items-center justify-center text-center px-6">
           {/* Background Wrapper */}
           <div className="absolute inset-0 z-0">
-            <Image
+            <img
               src="https://images.unsplash.com/photo-1555597673-b21d5c935865?q=80&w=2000&auto=format&fit=crop"
               alt="Hero Background"
               className="w-full h-full object-cover"

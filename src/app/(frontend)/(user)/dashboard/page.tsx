@@ -7,6 +7,7 @@ import { Calendar, Clock, LocationEdit } from 'lucide-react'
 import Image from 'next/image'
 import { AthleteStatsGrid } from '../components/AthleteStatsGrid'
 import { getCurrentUser } from '@/lib/auth'
+import { jadwalLatihan } from '@/lib/jadwal'
 
 export default async function DashboardPage() {
   // 1. Initialize Local API
@@ -21,7 +22,7 @@ export default async function DashboardPage() {
     payload.count({
       collection: 'achievements',
       where: {
-        and: [{ atlet: { equals: user.id } }],
+        and: [{ atlet: { equals: user.id }, status: { equals: 'approved' } }],
       },
     }),
   ])
@@ -72,21 +73,23 @@ export default async function DashboardPage() {
         {/* Jadwal Latihan */}
         <div className="card-outline">
           <div className="card-title border-b border-slate-200 pb-5">Jadwal Latihan</div>
-          <div className="flex gap-5 justify-between items-center">
-            <div className="size-12 flex items-center justify-center rounded-xl bg-blue-500/20 text-blue-500">
-              <Calendar />
-            </div>
-            <div className="flex flex-col gap-2 text-sm flex-1">
-              <div className="font-bold">Rabu</div>
-              <div className="flex gap-2 items-start">
-                <Clock className="w-5" />
-                <div>15.30 - 17.30 WIB</div>
+          {jadwalLatihan.map((items, index) => (
+            <div className="flex gap-5 justify-between items-center py-2 hover:bg-slate-100">
+              <div className="size-12 flex items-center justify-center rounded-xl bg-blue-500/20 text-blue-500">
+                <Calendar />
               </div>
+              <div className="flex flex-col gap-2 text-sm flex-1">
+                <div className="font-bold">{items.hari}</div>
+                <div className="flex gap-2 items-center">
+                  <Clock className="w-5" />
+                  <span>{items.waktu} WIB</span>
+                </div>
+              </div>
+              {/* <div className="bg-blue-500/20 text-blue-500 px-8 py-2 rounded-xl font-bold">
+                Latihan Rutin
+              </div> */}
             </div>
-            <div className="bg-blue-500/20 text-blue-500 px-8 py-2 rounded-xl font-bold">
-              Latihan Rutin
-            </div>
-          </div>
+          ))}
         </div>
         {/* Events */}
 

@@ -97,7 +97,7 @@ export default async function ProfilPage() {
           </div>
 
           <Link
-            href="/profil/edit" // Target route for the mutation form
+            href="/dashboard/profil/edit" // Target route for the mutation form
             className="flex items-center gap-2 bg-[#3b82f6] hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors text-sm shrink-0"
           >
             Edit Profil

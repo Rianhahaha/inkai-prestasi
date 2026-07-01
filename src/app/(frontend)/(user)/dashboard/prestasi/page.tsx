@@ -45,7 +45,7 @@ export default async function PrestasiSayaPage({ searchParams }: PageProps) {
     payload.count({
       collection: 'achievements',
       where: {
-        and: [{ atlet: { equals: user.id } }],
+        and: [{ atlet: { equals: user.id }, status: { equals: 'approved' } }],
       },
     }),
   ])
@@ -67,7 +67,7 @@ export default async function PrestasiSayaPage({ searchParams }: PageProps) {
           <h1 className="text-2xl font-bold text-slate-800 mb-1">Prestasi Saya</h1>
         </div>
         <Link
-          href="/prestasi/tambah"
+          href="/dashboard/prestasi/tambah"
           className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm flex items-center gap-2"
         >
           <span>+</span> Ajukan Prestasi

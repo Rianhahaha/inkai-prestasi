@@ -87,7 +87,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="8.58357"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint1_linear_1_416"
@@ -97,7 +97,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="7.55584"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint2_linear_1_416"
@@ -107,7 +107,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="8.12973"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint3_linear_1_416"
@@ -117,7 +117,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="17.6704"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint4_linear_1_416"
@@ -127,7 +127,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="15.8768"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint5_linear_1_416"
@@ -137,7 +137,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="17.7385"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint6_linear_1_416"
@@ -147,7 +147,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="16.3918"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint7_linear_1_416"
@@ -157,7 +157,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="24.7078"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
             <linearGradient
               id="paint8_linear_1_416"
@@ -167,7 +167,7 @@ export function AthleteStatsGrid({ totalPoin, totalPrestasi, sabuk }: AthleteSta
               y2="25.0023"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="1" stop-color="#F4A023" />
+              <stop offset="1" stopColor="#F4A023" />
             </linearGradient>
           </defs>
         </svg>

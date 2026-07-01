@@ -9,7 +9,6 @@ import { getCurrentUser } from '@/lib/auth'
 
 export async function submitPrestasi(prevState: any, formData: FormData) {
   const payload = await getPayload({ config })
-  const headers = await getHeaders()
   const user = await getCurrentUser()
 
   // 1. Security Barrier
@@ -17,64 +16,117 @@ export async function submitPrestasi(prevState: any, formData: FormData) {
     return { success: false, error: 'Unauthorized payload mutation.' }
   }
 
-  const file = formData.get('sertifikat') as File
-  if (!file || file.size === 0) {
-    return { success: false, error: 'Sertifikat wajib diunggah.' }
-  }
-
-  // Next.js File parsing for Payload Local API compatibility
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
+  const achievementId = formData.get('achievementId') as string | null
+  const file = formData.get('sertifikat') as File | null
+  const hasNewFile = file && file.size > 0
 
   try {
-    // 2. Media Upload Operation
-    const mediaDoc = await payload.create({
-      collection: 'media',
-      data: {
-        owner: user.id, // Set the RBAC owner dynamically
-        alt: `Sertifikat ${formData.get('namaKejuaraan')}`,
-      },
-      file: {
-        data: buffer,
-        name: file.name,
-        mimetype: file.type,
-        size: file.size,
-      },
-    })
+    let mediaId = null
 
-    // 3. Metadata Linking Operation
-    await payload.create({
-      collection: 'achievements',
-      data: {
-        atlet: user.id,
-        namaKejuaraan: formData.get('namaKejuaraan') as string,
-        kategori: formData.get('kategori') as string,
-        peringkat: (formData.get('peringkat') as 'Juara 1' | 'Juara 2' | 'Juara 3') || 'Juara 1',
-        jenisKejuaraan: (formData.get('jenisKejuaraan') as 'Open' | 'Festival') || 'Open',
-        tingkatKejuaraan:
-          (formData.get('tingkatKejuaraan') as
-            | 'Kecamatan'
-            | 'Kabupaten/Kota'
-            | 'Provinsi'
-            | 'Nasional'
-            | 'Internasional') || 'Kabupaten/Kota',
-        tanggalKejuaraan: formData.get('tanggalKejuaraan') as string,
-        lokasiKejuaraan: formData.get('lokasiKejuaraan') as string,
-        sertifikat: mediaDoc.id,
-        status: 'pending',
-      },
-    }) // <-- Casting seluruh objek argumen
+    if (achievementId) {
+      // ==========================================
+      // UPDATE MODE (RESUBMIT)
+      // ==========================================
+      const existingDoc = await payload.findByID({
+        collection: 'achievements',
+        id: achievementId,
+        depth: 0,
+      })
 
-    // 4. Cache Invalidation
-    // Clears the Next.js cache so the dashboard reflects the new pending state instantly
-    revalidatePath('/dashboard')
-    revalidatePath('/prestasi')
+      // Ownership Authorization Guard
+      const docOwner =
+        typeof existingDoc.atlet === 'object' ? existingDoc.atlet.id : existingDoc.atlet
+      if (docOwner !== user.id) {
+        return { success: false, error: 'Akses ditolak.' }
+      }
 
-    return { success: true, message: 'Prestasi berhasil diajukan untuk verifikasi.' }
+      if (hasNewFile) {
+        // A. Handle file baru
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+
+        const newMediaDoc = await payload.create({
+          collection: 'media',
+          data: { owner: user.id, alt: `Revisi Sertifikat ${formData.get('namaKejuaraan')}` },
+          file: { data: buffer, name: file.name, mimetype: file.type, size: file.size },
+        })
+        mediaId = newMediaDoc.id
+
+        // B. Cleanup storage (Hapus file lama)
+        const oldMediaId =
+          typeof existingDoc.sertifikat === 'object'
+            ? existingDoc.sertifikat?.id
+            : existingDoc.sertifikat
+        if (oldMediaId) {
+          await payload
+            .delete({ collection: 'media', id: oldMediaId })
+            .catch((err) => payload.logger.error(`[Cleanup Error] Gagal hapus media lama: ${err}`))
+        }
+      } else {
+        // C. Pakai file lama kalau user nggak upload file baru
+        mediaId =
+          typeof existingDoc.sertifikat === 'object'
+            ? existingDoc.sertifikat?.id
+            : existingDoc.sertifikat
+      }
+
+      await payload.update({
+        collection: 'achievements',
+        id: achievementId,
+        data: {
+          namaKejuaraan: formData.get('namaKejuaraan') as string,
+          kategori: formData.get('kategori') as string,
+          peringkat: (formData.get('peringkat') as any) || 'Juara 1',
+          jenisKejuaraan: (formData.get('jenisKejuaraan') as any) || 'Open',
+          tingkatKejuaraan: (formData.get('tingkatKejuaraan') as any) || 'Kabupaten/Kota',
+          tanggalKejuaraan: formData.get('tanggalKejuaraan') as string,
+          lokasiKejuaraan: formData.get('lokasiKejuaraan') as string,
+          sertifikat: mediaId,
+          status: 'pending', // Reset status
+          catatanPenolakan: null, // Reset catatan admin
+        },
+      })
+
+      revalidatePath('/dashboard')
+      revalidatePath('/prestasi')
+      return { success: true, message: 'Data berhasil diperbaiki dan diajukan ulang.' }
+    } else {
+      // ==========================================
+      // CREATE MODE (NEW SUBMISSION)
+      // ==========================================
+      if (!hasNewFile) return { success: false, error: 'Sertifikat wajib diunggah.' }
+
+      const arrayBuffer = await file.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+
+      const mediaDoc = await payload.create({
+        collection: 'media',
+        data: { owner: user.id, alt: `Sertifikat ${formData.get('namaKejuaraan')}` },
+        file: { data: buffer, name: file.name, mimetype: file.type, size: file.size },
+      })
+
+      await payload.create({
+        collection: 'achievements',
+        data: {
+          atlet: user.id,
+          namaKejuaraan: formData.get('namaKejuaraan') as string,
+          kategori: formData.get('kategori') as string,
+          peringkat: (formData.get('peringkat') as any) || 'Juara 1',
+          jenisKejuaraan: (formData.get('jenisKejuaraan') as any) || 'Open',
+          tingkatKejuaraan: (formData.get('tingkatKejuaraan') as any) || 'Kabupaten/Kota',
+          tanggalKejuaraan: formData.get('tanggalKejuaraan') as string,
+          lokasiKejuaraan: formData.get('lokasiKejuaraan') as string,
+          sertifikat: mediaDoc.id,
+          status: 'pending',
+        },
+      })
+
+      revalidatePath('/dashboard')
+      revalidatePath('/prestasi')
+      return { success: true, message: 'Prestasi berhasil diajukan untuk verifikasi.' }
+    }
   } catch (error: any) {
-    payload.logger.error(
-      `[Mutation Error] User ${user.id} failed to submit achievement: ${error.message}`,
-    )
+    payload.logger.error(`[Mutation Error] User ${user.id} failed: ${error.message}`)
     return { success: false, error: 'Terjadi kesalahan internal server saat memproses data.' }
   }
 }

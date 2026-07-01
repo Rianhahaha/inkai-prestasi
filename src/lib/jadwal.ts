@@ -5,10 +5,8 @@ export type Jadwal = {
   lokasi: string
 }
 
-export const jadwalLatihan: Jadwal[] = [
-  { id: 1, hari: 'Senin', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY' },
-  { id: 2, hari: 'Selasa', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY' },
-  { id: 3, hari: 'Rabu', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY' },
-  { id: 4, hari: 'Kamis', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY' },
-  { id: 5, hari: 'Jumat', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY' },
+export const jadwalLatihan = [
+  { id: 1, hari: 'Rabu', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY', dayIndex: 1 },
+  { id: 2, hari: 'Jumat', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY', dayIndex: 5 },
+  { id: 3, hari: 'Minggu', waktu: '15.30 - 18.00', lokasi: 'GOR Beladiri UNY', dayIndex: 7 },
 ]
