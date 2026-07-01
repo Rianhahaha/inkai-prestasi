@@ -28,6 +28,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
   // 1. Decoupled Parallel Data Fetching
   const queryWhere: any = {
     role: { equals: 'athlete' },
+    totalPoin: { greater_than: 0 },
   }
 
   if (searchTerm) {

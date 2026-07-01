@@ -33,6 +33,7 @@ export async function getLeaderboardData({ page, limit, search }: FetchLeaderboa
   // 1. Build Query
   const queryWhere: any = {
     role: { equals: 'athlete' },
+    totalPoin: { greater_than: 0 },
   }
 
   if (search) {

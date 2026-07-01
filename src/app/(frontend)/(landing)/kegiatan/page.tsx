@@ -89,7 +89,7 @@ export default async function page({ searchParams }: PageProps) {
           <div className="w-full">
             <SearchBar placeholder="Cari judul konten..." />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2 w-full">
             {kontenDocs.length === 0 ? (
               <div className="col-span-full p-20 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
                 <ImageIcon className="w-12 h-12 mb-3 text-slate-300" />

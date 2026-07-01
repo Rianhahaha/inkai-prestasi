@@ -2,11 +2,24 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { ArrowLeft, Award, Trophy, User2, Mail, Phone, MapPin, Calendar, Info } from 'lucide-react'
+import {
+  ArrowLeft,
+  Award,
+  Trophy,
+  User2,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Info,
+  VenusAndMarsIcon,
+} from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
 import { calculatePoints } from '@/lib/points'
+import { getAthleteRank } from '@/lib/rank'
+import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,7 +67,7 @@ export default async function DetailAtletPage({ params }: PageProps) {
       payload.findByID({
         collection: 'users',
         id: athleteId,
-        depth: 0,
+        depth: 1,
       }),
       payload.find({
         collection: 'achievements',
@@ -65,9 +78,16 @@ export default async function DetailAtletPage({ params }: PageProps) {
       }),
     ])
 
+    console.log(user)
+
     if (user.role !== 'athlete') {
       return notFound() // Guard: Jangan tampilkan jika ID tersebut bukan atlet
     }
+
+    // Di dalam DetailAtletPage
+
+    // Hitung berapa banyak orang yang poinnya lebih tinggi
+    const rank = await getAthleteRank(payload, user.totalPoin || 0)
 
     return (
       <>
@@ -79,28 +99,42 @@ export default async function DetailAtletPage({ params }: PageProps) {
             <h1 className="font-bold text-[45px]">Detail Atlet</h1>
           </div>
         </section>
-        <section className="flex flex-col gap-6 max-w-7xl w-full mx-auto my-10">
+        <section className="flex flex-col gap-6 max-w-7xl w-full mx-auto my-10 px-5">
           {/* Header Navigasi */}
 
           {/* Hero Banner Profil */}
           <div className="bg-[#8bb4f7] rounded-2xl p-8 flex items-center gap-6 shadow-sm relative overflow-hidden">
-            <div className="w-24 h-24 rounded-full bg-white border-4 border-white/50 shadow-md flex items-center justify-center overflow-hidden shrink-0 z-10">
-              {/* {user.fotoProfil?.url ? (
-              <img src={user.fotoProfil.url} alt="Profil" className="w-full h-full object-cover" />
-              ) : (
-                <User2 className="w-10 h-10 text-slate-300" />
-              )} */}
-              <User2 className="w-10 h-10 text-slate-300" />
+            <div className="flex w-full justify-between items-center">
+              <div className="flex items-center gap-6">
+                <div className="w-24 h-24 rounded-full bg-white border-4 border-white/50 shadow-md flex items-center justify-center overflow-hidden shrink-0 z-10">
+                  {user.fotoProfil &&
+                  typeof user.fotoProfil === 'object' &&
+                  'url' in user.fotoProfil ? (
+                    <Image
+                      width={100}
+                      height={100}
+                      src={user.fotoProfil.url || ''}
+                      alt="Profil"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User2 className="w-10 h-10 text-slate-300" />
+                  )}
+                  {/* <User2 className="w-10 h-10 text-slate-300" /> */}
+                </div>
+                <div className="flex flex-col gap-1 z-10">
+                  <h1 className="text-3xl font-bold text-slate-900">{user.namaLengkap}</h1>
+                  <div className="text-slate-800 font-medium">Sabuk {user.sabuk}</div>
+                </div>
+              </div>
+              <div className="px-4 py-3 bg-white rounded-lg font-bold">
+                {rank === 'Unranked' ? 'Unranked' : `Rank ${rank}`}
+              </div>
+              {/* Ornamen dekoratif (opsional, meniru gradasi UI) */}
+              <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
             </div>
-            <div className="flex flex-col gap-1 z-10">
-              <h1 className="text-3xl font-bold text-slate-900">{user.namaLengkap}</h1>
-              <div className="text-slate-800 font-medium">Sabuk {user.sabuk}</div>
-            </div>
-            {/* Ornamen dekoratif (opsional, meniru gradasi UI) */}
-            <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
           </div>
 
-          {/* Statistik Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center gap-5 shadow-sm">
               <div className="w-14 h-14 rounded-full bg-[#cffafe] text-[#06b6d4] flex items-center justify-center shrink-0">
@@ -133,7 +167,7 @@ export default async function DetailAtletPage({ params }: PageProps) {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
               <Info className="w-5 h-5 text-blue-500" />
-              <h2 className="font-bold text-slate-800">Informasi Pribadi</h2>
+              <h2 className="font-bold text-slate-800">Informasi Atlet</h2>
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-10">
               <div className="flex flex-col gap-1">
@@ -146,25 +180,31 @@ export default async function DetailAtletPage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1">
+              {/* <div className="flex flex-col gap-1">
                 <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
                   <Mail className="w-4 h-4" /> Email
                 </div>
                 <div className="font-bold text-slate-800">{user.email}</div>
-              </div>
+              </div> */}
 
-              <div className="flex flex-col gap-1">
+              {/* <div className="flex flex-col gap-1">
                 <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
                   <Phone className="w-4 h-4" /> Nomor Telepon
                 </div>
                 <div className="font-bold text-slate-800">{user.nomorTelepon || '-'}</div>
-              </div>
+              </div> */}
 
               <div className="flex flex-col gap-1">
                 <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
                   <MapPin className="w-4 h-4" /> Sabuk
                 </div>
                 <div className="font-bold text-slate-800">{user.sabuk || '-'}</div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                  <VenusAndMarsIcon className="w-4 h-4" /> Jenis Kelamin
+                </div>
+                <div className="font-bold text-slate-800">{user.jenisKelamin || '-'}</div>
               </div>
             </div>
           </div>

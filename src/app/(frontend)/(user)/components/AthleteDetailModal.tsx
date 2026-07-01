@@ -368,7 +368,7 @@ export default function AthleteDetailModal({ doc, onClose }: AthleteDetailModalP
           </div> */}
 
           {/* Point Computation Section */}
-          <div className="border border-slate-200 rounded-xl">
+          <div className="border border-slate-200 rounded-xl overflow-hidden">
             <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2 text-sm font-bold text-slate-700">
               <Award className="w-4 h-4 text-orange-500" />
               Sistem Poin

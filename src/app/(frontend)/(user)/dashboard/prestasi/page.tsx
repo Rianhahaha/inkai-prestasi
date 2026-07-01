@@ -38,7 +38,7 @@ export default async function PrestasiSayaPage({ searchParams }: PageProps) {
       atlet: { equals: user.id },
     },
     sort: '-createdAt',
-    depth: 0,
+    depth: 2,
   })
 
   const [approvedCount] = await Promise.all([
@@ -59,6 +59,8 @@ export default async function PrestasiSayaPage({ searchParams }: PageProps) {
       timeZone: 'Asia/Jakarta', // Paksa Node.js menggunakan zona waktu WIB
     }),
   }))
+
+  console.log(serializedDocs)
 
   return (
     <div className="flex flex-col gap-6 card-outline bg-white">

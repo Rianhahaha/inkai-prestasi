@@ -8,6 +8,9 @@ import Image from 'next/image'
 import { AthleteStatsGrid } from '../components/AthleteStatsGrid'
 import { getCurrentUser } from '@/lib/auth'
 import { jadwalLatihan } from '@/lib/jadwal'
+import { getKontenData } from '@/app/api/getPayloadData'
+import { formatDate } from '@/lib/utils'
+import EventCarousel from '../components/EventCarousel'
 
 export default async function DashboardPage() {
   // 1. Initialize Local API
@@ -42,6 +45,10 @@ export default async function DashboardPage() {
       console.error('[Media Fetch Error]', e)
     }
   }
+
+  const konten = await getKontenData({
+    limit: 5,
+  })
 
   // 3. Prop Drilling to Presentation Layer
   return (
@@ -94,38 +101,12 @@ export default async function DashboardPage() {
         {/* Events */}
 
         <div className="card-outline">
-          <div className="card-title">Events</div>
-          <div className="w-full h-auto bg-blue-500/20 rounded-xl p-6 flex justify-start items-stretch gap-6">
-            <div className="max-w-[12rem] max-h-[12rem] w-full rounded-xl  h-full flex items-center justify-center overflow-hidden">
-              <img
-                src={
-                  'https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U'
-                }
-                alt="image"
-                // height={200}
-                // width={200}
-                className="size-full    object-cover object-center"
-              />
-            </div>
-            <div className="flex flex-col gap-2 text-sm">
-              <div className="card-title">Sebelas Maret CUP XII 2026</div>
-              <div className="flex flex-col justify-between h-full gap-5">
-                <div className="flex flex-col ">
-                  <div className="flex gap-2 items-start">
-                    <Clock className="w-5" />
-                    <div>15.30 - 17.30 WIB</div>
-                  </div>
-                  <div className="flex gap-2 items-start">
-                    <LocationEdit className="w-5" />
-                    <div>GOR Universitas Sebelas Maret</div>
-                  </div>
-                </div>
-                <button className="bg-blue-500 px-8 py-3 rounded-xl text-white font-bold order-last">
-                  Lihat Selengkapnya
-                </button>
-              </div>
-            </div>
-          </div>
+          <div className="card-title mb-4">Events</div>
+          {konten?.docs?.length > 0 ? (
+            <EventCarousel events={konten.docs} />
+          ) : (
+            <p className="text-slate-500 text-sm">Tidak ada event mendatang.</p>
+          )}
         </div>
       </div>
     </div>

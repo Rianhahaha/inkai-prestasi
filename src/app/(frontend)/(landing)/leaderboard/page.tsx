@@ -6,6 +6,7 @@ import Podium from '../../components/Podium'
 import PaginationControls from '../../components/PaginationControls'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +21,7 @@ export default async function page({ searchParams }: PageProps) {
   const searchTerm = resolvedParams.search || ''
   const queryWhere: any = {
     role: { equals: 'athlete' },
+    totalPoin: { greater_than: 0 },
   }
   if (searchTerm) {
     // Sesuaikan field pencarian jika perlu
@@ -122,7 +124,9 @@ export default async function page({ searchParams }: PageProps) {
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
                                   {doc.fotoProfil?.url ? (
-                                    <img
+                                    <Image
+                                      width={100}
+                                      height={100}
                                       src={doc.fotoProfil.url}
                                       alt=""
                                       className="w-full h-full object-cover"

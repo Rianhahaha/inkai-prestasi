@@ -33,7 +33,7 @@ export default function EditProfileForm({
 
       if (res.success) {
         setFeedback({ type: 'success', msg: res.message! })
-        setTimeout(() => router.push('/profil'), 1500)
+        setTimeout(() => router.push('/dashboard/profil'), 1500)
       } else {
         setFeedback({ type: 'error', msg: res.error! })
       }

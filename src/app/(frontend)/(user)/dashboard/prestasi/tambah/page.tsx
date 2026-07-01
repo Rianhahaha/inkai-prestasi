@@ -9,7 +9,7 @@ export default function PengajuanPrestasiPage() {
   const [state, formAction, isPending] = useActionState(submitPrestasi, null)
 
   return (
-    <div className="flex flex-col gap-6 max-w-2xl">
+    <div className="flex flex-col gap-6 w-full">
       {/* Breadcrumb / Back Navigation */}
       <div className="flex items-center gap-2 text-sm text-slate-500">
         <a href="/dashboard/prestasi" className="hover:text-blue-600 transition-colors">
@@ -150,7 +150,7 @@ export default function PengajuanPrestasiPage() {
               {isPending ? 'Mengunggah Data...' : 'Kirim Pengajuan'}
             </button>
             <a
-              href="/prestasi"
+              href="/dashboard/prestasi"
               className="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-center font-medium"
             >
               Batal

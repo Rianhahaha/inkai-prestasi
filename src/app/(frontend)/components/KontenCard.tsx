@@ -1,4 +1,5 @@
 // src/app/(frontend)/components/KontenCard.tsx
+import { formatDate } from '@/lib/utils'
 import { CalendarDays, ImageIcon, MapPin, Edit } from 'lucide-react'
 import Image from 'next/image'
 // import { getMediaUrl } from '@/lib/utils'
@@ -23,6 +24,8 @@ export default function KontenCard({
     return null
   }
   const thumbnailUrl = getMediaUrl(item.thumbnail)
+
+  console.log(item)
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col h-full text-left">
       {/* Thumbnail */}
@@ -52,7 +55,9 @@ export default function KontenCard({
         <div className="flex flex-col gap-1.5 mb-4">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <CalendarDays className="w-4 h-4 text-blue-500 shrink-0" />
-            <span className="truncate">{item.tanggalPelaksanaan || '-'}</span>
+            <span className="truncate">
+              {formatDate(item.tanggalMulai) || ''} - {formatDate(item.tanggalSelesai) || ''}{' '}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <MapPin className="w-4 h-4 text-blue-500 shrink-0" />
@@ -64,7 +69,7 @@ export default function KontenCard({
 
         <div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
           <a
-            href={`${detailBasePath}/${item.slug}`}
+            href={`${detailBasePath}/${admin ? item.id : item.slug}`}
             className="text-blue-500 text-sm font-semibold hover:text-blue-700 transition-colors inline-block hover:underline"
           >
             Lihat detail

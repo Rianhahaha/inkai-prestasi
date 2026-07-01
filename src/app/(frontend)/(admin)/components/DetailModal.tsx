@@ -5,6 +5,7 @@ import React, { useState, useTransition } from 'react'
 import { User2, FileText, Award, CheckCircle, CircleX, AlertTriangle } from 'lucide-react'
 import { calculatePoints, POINT_MATRIX } from '@/lib/points' // [!] Import Shared Utility
 import Image from 'next/image'
+import { formatDate } from '@/lib/utils'
 
 interface VerificationModalProps {
   doc: any
@@ -169,7 +170,8 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
                   Tanggal Kejuaraan
                 </label>
                 <div className="font-bold text-slate-800 text-sm">
-                  {doc.tanggalFormatted || doc.tanggalKejuaraan}
+                  {formatDate(doc.tanggalKejuaraan)}
+                  {/* {doc.tanggalFormatted || doc.tanggalKejuaraan} */}
                 </div>
               </div>
             </div>

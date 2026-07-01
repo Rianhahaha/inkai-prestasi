@@ -79,8 +79,8 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
       data: rawData,
     })
 
-    revalidatePath('/profil')
-    revalidatePath('/profil/edit')
+    revalidatePath('/dashboard/profil')
+    revalidatePath('/dashboard/profil/edit')
 
     return { success: true, message: 'Profil berhasil diperbarui.' }
   } catch (error: any) {
