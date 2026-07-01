@@ -7,6 +7,7 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 import { getEventStatus } from '@/lib/getEventStatus'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface KontenDetailProps {
   konten: Konten
@@ -30,7 +31,7 @@ export default function KontenDetail({ konten }: KontenDetailProps) {
           <div className="flex items-center gap-5">
             {!isAdmin && (
               <Link
-                href="/konten/"
+                href="/kegiatan#konten-section"
                 className="border border-transparent rounded-xl hover:border-blue-200 size-10 flex justify-center items-center transition-all"
               >
                 <ArrowBigLeftDash />
@@ -52,7 +53,13 @@ export default function KontenDetail({ konten }: KontenDetailProps) {
       </section>
       <section className="py-10 px-6 max-w-7xl mx-auto">
         {thumbnail && (
-          <img className="rounded-xl w-full mb-10" src={thumbnail} alt={konten.judul} />
+          <Image
+            width={100}
+            height={100}
+            className="rounded-xl w-full mb-10"
+            src={thumbnail}
+            alt={konten.judul}
+          />
         )}
 
         <RichText data={konten.isiKonten} />

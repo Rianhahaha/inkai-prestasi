@@ -5,6 +5,7 @@ import React, { useTransition, useState, useRef } from 'react'
 import { completeProfileAction } from './actions'
 import { UserCheck, ShieldAlert, Camera } from 'lucide-react'
 import { sabukOptions } from '@/lib/utils'
+import Image from 'next/image'
 
 export default function CompleteProfileForm({ initialAvatarUrl }: { initialAvatarUrl: string }) {
   const [isPending, startTransition] = useTransition()
@@ -55,7 +56,13 @@ export default function CompleteProfileForm({ initialAvatarUrl }: { initialAvata
           className="relative w-24 h-24 rounded-full border-4 border-white shadow-md overflow-hidden group cursor-pointer bg-slate-100"
           onClick={() => fileInputRef.current?.click()}
         >
-          <img src={previewUrl} alt="Profile Preview" className="w-full h-full object-cover" />
+          <Image
+            width={100}
+            height={100}
+            src={previewUrl}
+            alt="Profile Preview"
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <Camera className="text-white w-6 h-6" />
           </div>

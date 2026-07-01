@@ -118,7 +118,14 @@ export default async function KelolaKontenPage({ searchParams }: PageProps) {
             <p>Tidak ada konten {currentStatus} yang ditemukan.</p>
           </div>
         ) : (
-          kontenDocs.map((item: any) => <KontenCard key={item.id} item={item} />)
+          kontenDocs.map((item: any) => (
+            <KontenCard
+              key={item.id}
+              item={item}
+              admin
+              detailBasePath="/admin-dashboard/konten/detail"
+            />
+          ))
         )}
       </div>
 

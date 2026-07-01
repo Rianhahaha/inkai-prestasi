@@ -38,7 +38,7 @@ export default function SearchBar({ placeholder = 'Cari...' }: { placeholder?: s
   }
 
   return (
-    <div className="relative flex flex-1 w-full">
+    <div className="relative flex flex-1 w-full bg-white">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
       <input
         type="text"

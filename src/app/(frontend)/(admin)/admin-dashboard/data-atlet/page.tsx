@@ -11,6 +11,8 @@ import AthleteFormModal from './AthleteFormModal'
 import TableFilter, { FilterConfig } from '@/app/(frontend)/components/TableFilter'
 import { buildSortParam } from '@/lib/buildSortParam'
 import SortableTableHeader from '@/app/(frontend)/components/SortableTableHeader'
+import { getAthletesData } from '@/app/api/getPayloadData'
+import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -60,16 +62,16 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
     queryWhere.and.push({ sabuk: { in: filterSabuk } })
   }
 
-  const tableData = await payload.find({
-    collection: 'users',
-    where: queryWhere,
-    depth: 0, // Kedalaman 0 cukup untuk data profil dasar
-    sort: buildSortParam(sortField, sortDir, '-createdAt'),
+  const tableData = await getAthletesData({
     page: currentPage,
     limit: limitPerPage,
+    search: searchTerm,
+    sabuk: filterSabuk,
+    sortField,
+    sortDir,
   })
 
-  // console.log(tableData)
+  console.log(tableData)
 
   // 2. Fungsi Ekstraksi Warna Sabuk Berdasarkan String Database
   const getBeltColor = (sabuk: string) => {
@@ -120,8 +122,8 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
           </Link>
         </div>
 
-        <SearchBar placeholder="Cari nama atlet..." />
         <TableFilter filters={sabukFilters} />
+        <SearchBar placeholder="Cari nama atlet..." />
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
           {/* Table Toolbar */}
@@ -174,7 +176,9 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
                             {doc.fotoProfil?.url ? (
-                              <img
+                              <Image
+                                width={100}
+                                height={100}
                                 src={doc.fotoProfil.url}
                                 alt=""
                                 className="w-full h-full object-cover"

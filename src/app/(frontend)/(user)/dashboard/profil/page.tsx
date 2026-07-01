@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 import { Key, CheckCircle } from 'lucide-react'
 import { getCurrentUser } from '@/lib/auth'
+import Image from 'next/image'
 
 export default async function ProfilPage() {
   const payload = await getPayload({ config })
@@ -76,7 +77,13 @@ export default async function ProfilPage() {
         <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-md flex items-center justify-center overflow-hidden shrink-0">
-              <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              <Image
+                width={100}
+                height={100}
+                src={avatarUrl}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
               {/* {user.fotoProfil?.url ? (
               ) : (
                 <User2 className="w-10 h-10 text-slate-400" />

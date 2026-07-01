@@ -10,11 +10,13 @@ interface SortableTableHeaderProps {
   label: string
   sortKey: string
   className?: string
+  align?: 'left' | 'center'
 }
 
 export default function SortableTableHeader({
   label,
   sortKey,
+  align = 'left',
   className = '',
 }: SortableTableHeaderProps) {
   const router = useRouter()
@@ -48,7 +50,9 @@ export default function SortableTableHeader({
   const Icon = !isActive ? ChevronsUpDown : currentDir === 'asc' ? ChevronUp : ChevronDown
 
   return (
-    <th className={` py-4 px-6 font-bold text-slate-700 text-sm select-none ${className}`}>
+    <th
+      className={`${align === 'center' ? 'flex justify-center' : ''} py-4 px-6 font-bold text-slate-700 text-sm select-none ${className}`}
+    >
       <button
         onClick={handleSort}
         className="cursor-pointer flex items-center gap-1.5 hover:text-slate-900 transition-colors group"

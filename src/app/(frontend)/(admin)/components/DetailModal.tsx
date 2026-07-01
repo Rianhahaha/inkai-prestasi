@@ -4,6 +4,7 @@
 import React, { useState, useTransition } from 'react'
 import { User2, FileText, Award, CheckCircle, CircleX, AlertTriangle } from 'lucide-react'
 import { calculatePoints, POINT_MATRIX } from '@/lib/points' // [!] Import Shared Utility
+import Image from 'next/image'
 
 interface VerificationModalProps {
   doc: any
@@ -88,7 +89,9 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center text-slate-500 overflow-hidden shrink-0">
               {doc.atlet?.fotoProfil?.url ? (
-                <img
+                <Image
+                  width={100}
+                  height={100}
                   src={doc.atlet.fotoProfil.url}
                   alt="Profile"
                   className="w-full h-full object-cover"

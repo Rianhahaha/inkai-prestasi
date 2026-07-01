@@ -142,8 +142,8 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
         <h1 className="text-2xl font-bold text-slate-800 mb-2">Verifikasi Prestasi</h1>
         <p className="text-slate-500">Daftar pengajuan prestasi yang membutuhkan peninjauan.</p>
       </div> */}
-        <SearchBar placeholder="Cari nama atlet..." />
         <TableFilter filters={prestasiFilters} />
+        <SearchBar placeholder="Cari nama atlet..." />
       </div>
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-5">
         {/* Header Section dengan Icon */}

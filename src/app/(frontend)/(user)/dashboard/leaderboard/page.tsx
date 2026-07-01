@@ -9,6 +9,7 @@ import { calculatePoints, POINT_MATRIX } from '@/lib/points'
 import Podium from '@/app/(frontend)/components/Podium'
 import { getLeaderboardData } from '@/app/api/getPayloadData'
 import { getBeltColor } from '@/lib/utils'
+import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,13 +35,6 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
     queryWhere.namaLengkap = { contains: searchTerm }
   }
 
-  const { top3, tableDocs, pagination } = await getLeaderboardData({
-    page: currentPage,
-    limit: limitPerPage,
-    search: searchTerm,
-  })
-  // 2. Utilitas Visual
-
   // Type Guard Helper: Ekstrak URL secara aman dari Payload Relationship Field
   const getAvatarUrl = (mediaField: any): string | null => {
     if (typeof mediaField === 'object' && mediaField !== null && 'url' in mediaField) {
@@ -48,6 +42,24 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
     }
     return null
   }
+  const { top3, tableDocs, pagination } = await getLeaderboardData({
+    page: currentPage,
+    limit: limitPerPage,
+    search: searchTerm,
+  })
+  // 2. Utilitas Visual
+
+  const tableDocsWIthMedals = await Promise.all(
+    tableDocs.map(async (doc: any) => {
+      const countResult = await payload.count({
+        collection: 'achievements',
+        where: {
+          and: [{ atlet: { equals: doc.id } }, { status: { equals: 'approved' } }],
+        },
+      })
+      return { ...doc, totalMedali: countResult.totalDocs }
+    }),
+  )
 
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full pb-10">
@@ -77,14 +89,14 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
                 </tr>
               </thead>
               <tbody>
-                {tableDocs.length === 0 ? (
+                {tableDocsWIthMedals.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-slate-500">
                       Tidak ada data atlet yang ditemukan.
                     </td>
                   </tr>
                 ) : (
-                  tableDocs.map((doc: any, index: number) => {
+                  tableDocsWIthMedals.map((doc: any, index: number) => {
                     const absoluteRank = doc.absoluteRank
 
                     // Indikator Warna Rank (Hanya untuk Top 3)
@@ -117,7 +129,9 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
                               {doc.fotoProfil?.url ? (
-                                <img
+                                <Image
+                                  width={100}
+                                  height={100}
                                   src={doc.fotoProfil.url}
                                   alt=""
                                   className="w-full h-full object-cover"
@@ -145,7 +159,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps) {
                           </span>
                         </td>
                         <td className="py-4 px-6 text-center text-sm font-medium text-slate-700">
-                          0{' '}
+                          {doc.totalMedali}
                           {/* Ganti dengan doc.totalMedali jika field-nya sudah Anda buat nanti */}
                         </td>
                       </tr>

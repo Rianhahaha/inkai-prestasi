@@ -1,13 +1,21 @@
 // src/app/(frontend)/components/KontenCard.tsx
 import { CalendarDays, ImageIcon, MapPin, Edit } from 'lucide-react'
+import Image from 'next/image'
 // import { getMediaUrl } from '@/lib/utils'
 
 interface KontenCardProps {
   item: any
   adminBasePath?: string // '/superadmin' | '/admin' — flexible per role
+  detailBasePath?: string
+  admin?: boolean
 }
 
-export default function KontenCard({ item, adminBasePath = '/superadmin' }: KontenCardProps) {
+export default function KontenCard({
+  item,
+  adminBasePath = '/superadmin',
+  detailBasePath = '/kegiatan',
+  admin = false,
+}: KontenCardProps) {
   const getMediaUrl = (mediaField: any): string | null => {
     if (typeof mediaField === 'object' && mediaField !== null && 'url' in mediaField) {
       return mediaField.url as string
@@ -20,7 +28,13 @@ export default function KontenCard({ item, adminBasePath = '/superadmin' }: Kont
       {/* Thumbnail */}
       <div className="relative h-48 bg-slate-100 w-full shrink-0 flex items-center justify-center overflow-hidden">
         {thumbnailUrl ? (
-          <img src={thumbnailUrl} alt={item.judul} className="w-full h-full object-cover" />
+          <Image
+            width={200}
+            height={200}
+            src={thumbnailUrl}
+            alt={item.judul}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <ImageIcon className="w-8 h-8 text-slate-300" />
         )}
@@ -50,18 +64,20 @@ export default function KontenCard({ item, adminBasePath = '/superadmin' }: Kont
 
         <div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
           <a
-            href={`konten/detail/${item.id}`}
+            href={`${detailBasePath}/${item.slug}`}
             className="text-blue-500 text-sm font-semibold hover:text-blue-700 transition-colors inline-block hover:underline"
           >
             Lihat detail
           </a>
-          <a
-            href={`${adminBasePath}/collections/konten/${item.id}`}
-            className="text-white text-sm font-semibold transition-colors flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600"
-          >
-            Edit
-            <Edit className="size-4" />
-          </a>
+          {admin && (
+            <a
+              href={`${adminBasePath}/collections/konten/${item.id}`}
+              className="text-white text-sm font-semibold transition-colors flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600"
+            >
+              Edit
+              <Edit className="size-4" />
+            </a>
+          )}
         </div>
       </div>
     </div>

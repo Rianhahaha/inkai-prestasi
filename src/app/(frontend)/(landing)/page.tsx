@@ -27,7 +27,7 @@ export default async function LandingPage() {
         <section className="relative w-full h-screen flex items-center justify-center text-center px-6">
           {/* Background Wrapper */}
           <div className="absolute inset-0 z-0">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1555597673-b21d5c935865?q=80&w=2000&auto=format&fit=crop"
               alt="Hero Background"
               className="w-full h-full object-cover"
@@ -70,7 +70,7 @@ export default async function LandingPage() {
                 />
               </div>
               <Link
-                href="/"
+                href="/tentang"
                 className="text-blue-600 font-normal transition-all  flex gap-1 items-end hover:underline w-fit"
               >
                 Lihat Selengkapnya
@@ -124,7 +124,7 @@ export default async function LandingPage() {
             </div>
             <div className="flex justify-center w-full">
               <Link
-                href="/register"
+                href="/kegiatan"
                 className="bg-blue-500 hover:bg-blue-600 text-white px-6 flex gap-3 py-2.5 rounded-lg font-semibold transition-colors w-fit mt-5"
               >
                 Lihat Selengkapnya
@@ -246,7 +246,7 @@ export default async function LandingPage() {
             </div>
             <div className="flex justify-center w-full">
               <Link
-                href="/register"
+                href="/leaderboard"
                 className="bg-blue-500 hover:bg-blue-600 text-white px-6 flex gap-3 py-2.5 rounded-lg font-semibold transition-colors w-fit mt-5"
               >
                 Lihat Leaderboard Lengkap

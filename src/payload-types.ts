@@ -246,6 +246,10 @@ export interface Konten {
   id: number;
   judul: string;
   /**
+   * Auto-generated dari judul.
+   */
+  slug?: string | null;
+  /**
    * Muncul sebagai deskripsi singkat di card UI.
    */
   ringkasan: string;
@@ -506,6 +510,7 @@ export interface AchievementsSelect<T extends boolean = true> {
  */
 export interface KontenSelect<T extends boolean = true> {
   judul?: T;
+  slug?: T;
   ringkasan?: T;
   kategori?: T;
   tanggalMulai?: T;

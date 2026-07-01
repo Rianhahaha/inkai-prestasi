@@ -1,5 +1,12 @@
 // src/collections/Konten.ts
 import { CollectionConfig } from 'payload'
+function toSlug(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+}
 
 export const Konten: CollectionConfig = {
   slug: 'konten',
@@ -18,11 +25,14 @@ export const Konten: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
-      ({ data, originalDoc }) => {
+      ({ data, originalDoc, operation }) => {
         const isPublishing = data.status === 'published' && originalDoc?.status !== 'published'
 
         if (isPublishing) {
           data.publishedAt = new Date().toISOString()
+        }
+        if (operation === 'create' && data.judul) {
+          data.slug = toSlug(data.judul)
         }
 
         return data
@@ -34,6 +44,17 @@ export const Konten: CollectionConfig = {
       name: 'judul',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true, // penting untuk query performance
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Auto-generated dari judul.',
+      },
     },
     {
       name: 'ringkasan',

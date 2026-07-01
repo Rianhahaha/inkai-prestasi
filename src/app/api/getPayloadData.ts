@@ -2,6 +2,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Where } from 'payload'
+import { buildSortParam } from '@/lib/buildSortParam'
 
 export async function getPengurusList() {
   const payload = await getPayload({ config })
@@ -105,6 +106,7 @@ export async function getLeaderboardData({ page, limit, search }: FetchLeaderboa
 interface GetKontenParams {
   status?: 'published' | 'draft'
   search?: string
+  category?: string
   page?: number
   limit?: number
 }
@@ -112,6 +114,7 @@ interface GetKontenParams {
 export async function getKontenData({
   status = 'published',
   search = '',
+  category = '',
   page = 1,
   limit = 9,
 }: GetKontenParams) {
@@ -123,6 +126,10 @@ export async function getKontenData({
 
   if (search) {
     where.and!.push({ judul: { contains: search } })
+  }
+
+  if (category && category !== 'Semua') {
+    where.and!.push({ kategori: { equals: category } })
   }
 
   try {
@@ -170,5 +177,80 @@ export async function getKontenById(id: string) {
   } catch (error) {
     console.error('[Fetcher Error] Gagal mengambil detail konten:', error)
     return null
+  }
+}
+
+export async function getKontenBySlug(slug: string) {
+  const payload = await getPayload({ config })
+
+  try {
+    const result = await payload.find({
+      collection: 'konten',
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 1,
+    })
+
+    return result.docs[0] ?? null
+  } catch (error) {
+    console.error('[Fetcher Error] Gagal mengambil konten by slug:', error)
+    return null
+  }
+}
+
+export interface GetAthletesParams {
+  page?: number
+  limit?: number
+  search?: string
+  sabuk?: string[]
+  sortField?: string
+  sortDir?: string
+}
+
+export async function getAthletesData({
+  page = 1,
+  limit = 10,
+  search = '',
+  sabuk = [],
+  sortField,
+  sortDir,
+}: GetAthletesParams) {
+  const payload = await getPayload({ config })
+
+  const queryWhere: any = {
+    and: [{ role: { equals: 'athlete' } }],
+  }
+
+  if (search) {
+    queryWhere.or = [{ namaLengkap: { contains: search } }, { email: { contains: search } }]
+  }
+
+  if (sabuk.length > 0) {
+    queryWhere.and.push({ sabuk: { in: sabuk } })
+  }
+
+  try {
+    const data = await payload.find({
+      collection: 'users',
+      where: queryWhere,
+      depth: 1,
+      sort: buildSortParam(sortField, sortDir, '-createdAt'),
+      page,
+      limit,
+    })
+
+    return data
+  } catch (error) {
+    console.error('[Fetcher Error] Gagal mengambil data atlet:', error)
+    // Return empty payload structure as fallback
+    return {
+      docs: [],
+      totalDocs: 0,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPrevPage: false,
+      nextPage: null,
+      prevPage: null,
+    }
   }
 }

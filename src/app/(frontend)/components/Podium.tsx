@@ -1,6 +1,7 @@
 // src/app/(frontend)/components/Podium.tsx
 import { StarIcon, User2 } from 'lucide-react'
 import type { User } from '@/payload-types'
+import Image from 'next/image'
 interface AthleteDoc {
   id: string
   namaLengkap: string
@@ -63,7 +64,13 @@ function PodiumCard({ athlete, rank }: PodiumCardProps) {
       {/* Avatar */}
       <div className="w-24 h-24 rounded-full border-4 border-white shadow-md mb-4 bg-amber-100 flex items-center justify-center overflow-hidden">
         {avatarUrl ? (
-          <img src={avatarUrl} alt={athlete.namaLengkap} className="w-full h-full object-cover" />
+          <Image
+            width={100}
+            height={100}
+            src={avatarUrl}
+            alt={athlete.namaLengkap}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <User2 className="w-10 h-10 text-amber-400" />
         )}
