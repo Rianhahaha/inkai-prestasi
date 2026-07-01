@@ -26,7 +26,7 @@ export default async function DetailKontenPage({ params }: PageProps) {
       <div className="w-full shadow-sm flex justify-between py-4 px-8 border items-center border-slate-200 rounded-2xl ">
         <div className="flex gap-2 items-center">
           <Link
-            href="/konten/"
+            href="/dashboard/konten/"
             className="border border-transparent rounded-xl hover:border-blue-200 size-10 flex justify-center items-center transition-all"
           >
             <ArrowBigLeftDash />
