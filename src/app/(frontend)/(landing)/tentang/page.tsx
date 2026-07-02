@@ -4,7 +4,7 @@ import PengurusList from '../PengurusCarousel'
 
 export default async function page() {
   const pengurus = await getPengurusList()
-  console.log('Pengurus :', pengurus)
+  // console.log('Pengurus :', pengurus)
 
   const divisi1 = pengurus.filter
 

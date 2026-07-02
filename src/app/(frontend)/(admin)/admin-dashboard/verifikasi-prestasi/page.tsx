@@ -75,7 +75,7 @@ export default async function VerifikasiPage({ searchParams }: PageProps) {
     page: currentPage,
   })
 
-  console.log(tableData)
+  // console.log(tableData)
 
   const prestasiFilters: FilterConfig[] = [
     {

@@ -60,7 +60,7 @@ export default async function PrestasiSayaPage({ searchParams }: PageProps) {
     }),
   }))
 
-  console.log(serializedDocs)
+  // console.log(serializedDocs)
 
   return (
     <div className="flex flex-col gap-6 card-outline bg-white">

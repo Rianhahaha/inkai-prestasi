@@ -25,7 +25,7 @@ export default function KontenCard({
   }
   const thumbnailUrl = getMediaUrl(item.thumbnail)
 
-  console.log(item)
+  // console.log(item)
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col h-full text-left">
       {/* Thumbnail */}

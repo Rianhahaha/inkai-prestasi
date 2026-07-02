@@ -78,7 +78,7 @@ export default async function DetailAtletPage({ params }: PageProps) {
       }),
     ])
 
-    console.log(user)
+    // console.log(user)
 
     if (user.role !== 'athlete') {
       return notFound() // Guard: Jangan tampilkan jika ID tersebut bukan atlet

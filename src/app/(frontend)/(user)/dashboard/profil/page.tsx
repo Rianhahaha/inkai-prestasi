@@ -18,7 +18,7 @@ export default async function ProfilPage() {
 
   if (!user) return null
 
-  console.log(user)
+  // console.log(user)
 
   const providers = user?.authProvider || ['local']
   const currentProviders =

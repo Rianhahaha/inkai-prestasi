@@ -27,13 +27,15 @@ export default async function LandingPage() {
         <section className="relative w-full h-screen flex items-center justify-center text-center px-6">
           {/* Background Wrapper */}
           <div className="absolute inset-0 z-0">
-            <img
-              src="https://images.unsplash.com/photo-1555597673-b21d5c935865?q=80&w=2000&auto=format&fit=crop"
+            <Image
+              width={2000}
+              height={2000}
+              src={'/images/hero.png'}
               alt="Hero Background"
               className="w-full h-full object-cover"
             />
             {/* Overlay */}
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
+            <div className="absolute inset-0 bg-slate-900/60 "></div>
           </div>
 
           {/* Content */}
@@ -63,8 +65,10 @@ export default async function LandingPage() {
             <div className="grid grid-cols-2 gap-4">
               {/* Image Wrapper 1 */}
               <div className="relative w-full h-[450px] rounded-2xl overflow-hidden shadow-md col-span-2">
-                <img
-                  src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop"
+                <Image
+                  width={2000}
+                  height={2000}
+                  src={'/images/tentang-1.png'}
                   alt="Tentang Kami 1"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -91,9 +95,11 @@ export default async function LandingPage() {
               </p>
               <div className="relative bg-amber-200 w-full min-h-[250px]">
                 <div className="absolute bottom-0 right-0 w-[calc(100%+150px)] h-full rounded-2xl overflow-hidden shadow-md">
-                  <img
-                    src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop"
-                    alt="Tentang Kami 1"
+                  <Image
+                    width={2000}
+                    height={2000}
+                    src={'/images/tentang-2.png'}
+                    alt="Tentang Kami 2"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
@@ -270,18 +276,20 @@ export default async function LandingPage() {
         <section className="relative w-full py-24 flex items-center justify-center text-center px-6 mt-10">
           {/* Background Wrapper */}
           <div className="absolute inset-0 z-0">
-            <img
-              src="https://images.unsplash.com/photo-1555597673-b21d5c935865?q=80&w=2000&auto=format&fit=crop"
+            <Image
+              width={2000}
+              height={2000}
+              src={'/images/ayo-bergabung.png'}
               alt="CTA Background"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-50"
             />
             {/* Overlay */}
-            <div className="absolute inset-0 bg-blue-900/80 backdrop-blur-sm"></div>
+            <div className="absolute inset-0 bg-[#99C3FF]/60 "></div>
           </div>
 
-          <div className="relative z-10 max-w-2xl flex flex-col items-center gap-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Ayo Bergabung Sekarang!</h2>
-            <p className="text-blue-100 text-lg">
+          <div className="relative z-10 max-w-2xl flex flex-col items-center gap-6 text-black">
+            <h2 className="text-3xl md:text-4xl font-bold text-black">Ayo Bergabung Sekarang!</h2>
+            <p className="text-lg">
               Jadilah bagian dari keluarga besar kami. Kembangkan potensi dirimu bersama UKM Karate
               INKAI UNY.
             </p>

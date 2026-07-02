@@ -71,7 +71,7 @@ export default async function DataAtletPage({ searchParams }: PageProps) {
     sortDir,
   })
 
-  console.log(tableData)
+  // console.log(tableData)
 
   // 2. Fungsi Ekstraksi Warna Sabuk Berdasarkan String Database
   const getBeltColor = (sabuk: string) => {
