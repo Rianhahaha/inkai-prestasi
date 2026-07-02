@@ -26,7 +26,7 @@ export default async function DetailKontenPage({ params }: PageProps) {
       <div className="w-full shadow-sm flex justify-between py-4 px-8 border items-center border-slate-200 rounded-2xl ">
         <div className="flex gap-2 items-center">
           <Link
-            href="/dashboard/konten/"
+            href="/admin-dashboard/konten/"
             className="border border-transparent rounded-xl hover:border-blue-200 size-10 flex justify-center items-center transition-all"
           >
             <ArrowBigLeftDash />
@@ -40,7 +40,7 @@ export default async function DetailKontenPage({ params }: PageProps) {
           </div>
         </div>
         <a
-          href={`superadmin/collections/konten/${konten.id}`}
+          href={`/superadmin/collections/konten/${konten.id}`}
           className="text-white text-sm font-semibold transition-colors flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600"
         >
           Edit
