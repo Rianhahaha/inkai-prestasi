@@ -46,8 +46,8 @@ export default async function LandingPage() {
               Universitas Negeri Yogyakarta
             </h1>
             <p className="text-slate-200 text-lg md:text-xl max-w-2xl">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua.
+              Mengembangkan potensi diri, menjunjung tinggi karakter, dan mencetak prestasi bersama
+              UKM Karate INKAI UNY
             </p>
             <Link
               href="/register"
@@ -87,11 +87,11 @@ export default async function LandingPage() {
             <div className="flex flex-col gap-6  h-full">
               <h2 className="text-3xl font-bold text-blue-600">Tentang Kami</h2>
               <p className="text-slate-600 leading-relaxed text-lg">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                pariatur.
+                UKM Karate INKAI UNY adalah organisasi seni bela diri yang berada di bawah naungan
+                perguruan INKAI. Selain bagi mahasiswa, UKM Karate INKAI UNY juga membina amggota
+                umum dari usia anak-anak hingga dewasa melalui lembaga olahraga Selabora UNY,
+                menciptakan lingkungan latihan yang inklusif untuk pembentukan fisik, mental, dan
+                pencapaian prestasi
               </p>
               <div className="relative bg-amber-200 w-full min-h-[250px]">
                 <div className="absolute bottom-0 right-0 w-[calc(100%+150px)] h-full rounded-2xl overflow-hidden shadow-md">
