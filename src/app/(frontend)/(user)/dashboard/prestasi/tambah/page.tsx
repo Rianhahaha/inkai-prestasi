@@ -1,12 +1,46 @@
 // src/app/(user)/prestasi/tambah/page.tsx
 'use client'
 
-import React, { useActionState } from 'react'
+import React, { useActionState, useRef, useState } from 'react'
 import Link from 'next/navigation' // Jika ingin menggunakan navigasi balik kustom
 import { submitPrestasi } from '@/app/(frontend)/(user)/dashboard/prestasi/action'
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB dalam bytes
+
 export default function PengajuanPrestasiPage() {
   const [state, formAction, isPending] = useActionState(submitPrestasi, null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) {
+      setFileError(null)
+      return
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError(
+        `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimal 5MB.`,
+      )
+      e.target.value = ''
+      return
+    }
+    setFileError(null)
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const file = fileInputRef.current?.files?.[0]
+    if (file && file.size > MAX_FILE_SIZE) {
+      e.preventDefault()
+      setFileError(
+        `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimal 5MB.`,
+      )
+      return
+    }
+    if (fileError) {
+      e.preventDefault()
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -34,7 +68,7 @@ export default function PengajuanPrestasiPage() {
           </div>
         )}
 
-        <form action={formAction} className="flex flex-col gap-5">
+        <form action={formAction} onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Nama Kejuaraan</label>
             <input
@@ -137,14 +171,21 @@ export default function PengajuanPrestasiPage() {
               name="sertifikat"
               accept=".pdf, image/png, image/jpeg"
               required
+              ref={fileInputRef}
+              onChange={handleFileChange}
               className="w-full border border-slate-300 p-2 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
+            {fileError ? (
+              <p className="text-xs text-red-600 mt-1 font-medium">{fileError}</p>
+            ) : (
+              <p className="text-xs text-slate-500 mt-1">Maksimal 5MB • PDF/JPG/PNG</p>
+            )}
           </div>
 
           <div className="flex gap-4 mt-4">
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !!fileError}
               className="flex-1 bg-blue-600 text-white font-medium py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-70 transition-colors"
             >
               {isPending ? 'Mengunggah Data...' : 'Kirim Pengajuan'}

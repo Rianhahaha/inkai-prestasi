@@ -1,7 +1,7 @@
 // src/app/(user)/prestasi/AthleteDetailModal.tsx
 'use client'
 
-import React, { useState, useActionState, useEffect } from 'react'
+import React, { useState, useActionState, useEffect, useRef } from 'react'
 import {
   FileText,
   Award,
@@ -25,9 +25,57 @@ const rankVisuals: Record<string, { label: string; color: string }> = {
   'Juara 3': { label: 'Perunggu', color: 'text-orange-500' },
 }
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB dalam bytes
+
 export default function AthleteDetailModal({ doc, onClose }: AthleteDetailModalProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [state, formAction, isPending] = useActionState(submitPrestasi, null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Reset error file saat dokumen berganti agar tidak bocor antar dokumen
+  useEffect(() => {
+    setFileError(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }, [doc?.id])
+
+  // Reset error file saat keluar dari mode edit
+  useEffect(() => {
+    if (!isEditing) {
+      setFileError(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }, [isEditing])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) {
+      setFileError(null)
+      return
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError(
+        `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimal 5MB.`,
+      )
+      e.target.value = ''
+      return
+    }
+    setFileError(null)
+  }
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const file = fileInputRef.current?.files?.[0]
+    if (file && file.size > MAX_FILE_SIZE) {
+      e.preventDefault()
+      setFileError(
+        `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimal 5MB.`,
+      )
+      return
+    }
+    if (fileError) {
+      e.preventDefault()
+    }
+  }
 
   // Auto-close atau balik ke mode view kalau sukses
   useEffect(() => {
@@ -91,7 +139,12 @@ export default function AthleteDetailModal({ doc, onClose }: AthleteDetailModalP
             // ==========================================
             // FORM EDIT MODE
             // ==========================================
-            <form action={formAction} id="resubmit-form" className="flex flex-col gap-4">
+            <form
+              action={formAction}
+              onSubmit={handleFormSubmit}
+              id="resubmit-form"
+              className="flex flex-col gap-4"
+            >
               {/* HIDDEN ID BUAT TRIGGER UPDATE MODE DI SERVER */}
               <input type="hidden" name="achievementId" value={doc.id} />
               {/* <input type="hidden" name="namaKejuaraan" value={doc.namaKejuaraan} />
@@ -235,11 +288,17 @@ export default function AthleteDetailModal({ doc, onClose }: AthleteDetailModalP
                   type="file"
                   name="sertifikat"
                   accept=".pdf,image/*"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
                   className="w-full border border-slate-300 p-2 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
-                <p className="text-xs text-slate-500 mt-1">
-                  Abaikan jika tidak ingin mengubah sertifikat.
-                </p>
+                {fileError ? (
+                  <p className="text-xs text-red-600 mt-1 font-medium">{fileError}</p>
+                ) : (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Abaikan jika tidak ingin mengubah sertifikat. Maksimal 5MB.
+                  </p>
+                )}
               </div>
             </form>
           ) : (
@@ -420,7 +479,7 @@ export default function AthleteDetailModal({ doc, onClose }: AthleteDetailModalP
               <button
                 form="resubmit-form"
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || !!fileError}
                 className="cursor-pointer px-6 bg-blue-600 text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 disabled:bg-blue-400 transition-colors text-sm"
               >
                 {isPending ? 'Menyimpan...' : 'Simpan & Ajukan Ulang'}
