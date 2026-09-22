@@ -22,7 +22,7 @@ export function Sidebar() {
     <>
       <aside className="w-64 bg-blue-500 text-white flex flex-col justify-between h-screen sticky top-0">
         <div>
-          <div className="p-6 flex items-center gap-3">
+          <Link href="/" className="p-6 flex items-center gap-3 hover:bg-white/10 transition-colors">
             {/* Placeholder Logo */}
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
               🥋
@@ -32,7 +32,7 @@ export function Sidebar() {
               <br />
               Universitas Negeri Yogyakarta
             </div>
-          </div>
+          </Link>
 
           <nav className="mt-6 flex flex-col gap-2 px-4">
             {navItems.map((item) => {
