@@ -208,7 +208,7 @@ export default function DetailModal({ doc, onClose, onApprove, onReject }: Verif
                 rel="noopener noreferrer"
                 className="border border-blue-200 text-blue-600 px-5 py-2 rounded-xl text-sm font-bold hover:bg-blue-50 transition-colors shrink-0"
               >
-                Unduh
+                Lihat File
               </a>
             )}
           </div>
