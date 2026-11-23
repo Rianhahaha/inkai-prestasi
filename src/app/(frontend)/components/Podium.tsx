@@ -1,16 +1,16 @@
 // src/app/(frontend)/components/Podium.tsx
 import { StarIcon, User2 } from 'lucide-react'
-import type { User } from '@/payload-types'
 import Image from 'next/image'
+
 interface AthleteDoc {
   id: string
   namaLengkap: string
   totalPoin?: number
-  fotoProfil?: { url?: string } | null
+  fotoProfil?: string | { url?: string } | null
 }
 
 interface PodiumCardProps {
-  athlete: User
+  athlete: AthleteDoc
   rank: 1 | 2 | 3
 }
 
@@ -40,8 +40,10 @@ const RANK_CONFIG = {
 
 function PodiumCard({ athlete, rank }: PodiumCardProps) {
   const config = RANK_CONFIG[rank]
-  const avatarUrl =
-    typeof athlete.fotoProfil === 'object' && athlete.fotoProfil?.url
+  // Handle both static string path and Payload media object
+  const avatarUrl = typeof athlete.fotoProfil === 'string'
+    ? athlete.fotoProfil
+    : typeof athlete.fotoProfil === 'object' && athlete.fotoProfil?.url
       ? athlete.fotoProfil.url
       : null
 
@@ -91,7 +93,7 @@ function PodiumCard({ athlete, rank }: PodiumCardProps) {
 }
 
 interface PodiumProps {
-  top3: User[]
+  top3: AthleteDoc[]
 }
 
 export default function Podium({ top3 }: PodiumProps) {

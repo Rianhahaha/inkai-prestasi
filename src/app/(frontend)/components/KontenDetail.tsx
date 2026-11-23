@@ -1,7 +1,6 @@
 // src/app/(frontend)/components/KontenDetail.tsx
 'use client'
 import { formatDate } from '@/lib/utils'
-import { Konten } from '@/payload-types'
 import { ArrowBigLeftDash } from 'lucide-react'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { getEventStatus } from '@/lib/getEventStatus'
@@ -10,7 +9,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 interface KontenDetailProps {
-  konten: Konten
+  konten: any
 }
 
 export default function KontenDetail({ konten }: KontenDetailProps) {
@@ -18,12 +17,26 @@ export default function KontenDetail({ konten }: KontenDetailProps) {
 
   let isAdmin = pathname.startsWith('/admin-dashboard/konten/detail/')
 
-  // console.log(isAdmin)
+  // Handle both Payload media object and static string path
+  const thumbnail = typeof konten.thumbnail === 'object' && konten.thumbnail?.url 
+    ? konten.thumbnail.url 
+    : typeof konten.thumbnail === 'string' 
+      ? konten.thumbnail 
+      : null
 
-  const thumbnail =
-    typeof konten.thumbnail === 'object' && konten.thumbnail?.url ? konten.thumbnail.url : null
+  // Handle both Lexical rich text and plain HTML string
+  const isLexical = konten.isiKonten && typeof konten.isiKonten === 'object' && 'root' in konten.isiKonten
 
-  //   console.log(konten)
+  // Safe date formatting
+  const safeFormatDate = (dateStr: string | undefined): string => {
+    if (!dateStr) return '-'
+    try {
+      return formatDate(dateStr)
+    } catch {
+      return '-'
+    }
+  }
+
   return (
     <>
       <section className="w-full bg-[#C5DDFF] ">
@@ -45,9 +58,9 @@ export default function KontenDetail({ konten }: KontenDetailProps) {
             </div>
           </div>
           <h1 className="font-bold text-[45px]">{konten.judul}</h1>
-          <p className="text-sm font-bold">Published: {formatDate(konten?.publishedAt || '')}</p>
+          <p className="text-sm font-bold">Published: {safeFormatDate(konten?.publishedAt)}</p>
           <div className="text-sm font-bold w-fit">
-            {formatDate(konten?.tanggalMulai || '')} - {formatDate(konten?.tanggalSelesai || '')}
+            {safeFormatDate(konten?.tanggalMulai)} - {safeFormatDate(konten?.tanggalSelesai)}
           </div>
         </div>
       </section>
@@ -62,13 +75,14 @@ export default function KontenDetail({ konten }: KontenDetailProps) {
           />
         )}
 
-        <RichText data={konten.isiKonten} />
-        {/* <p>{konten.ringkasan}</p>
-        <span>{konten.kategori}</span>
-        <span>{konten.lokasi}</span>
-        <span>{konten.tanggalMulai?.toString()}</span>
-        <span>{konten.tanggalSelesai?.toString()}</span>
-        <span>{konten.status}</span> */}
+        {isLexical ? (
+          <RichText data={konten.isiKonten} />
+        ) : (
+          <div 
+            className="prose prose-blue max-w-none"
+            dangerouslySetInnerHTML={{ __html: konten.isiKonten || '' }}
+          />
+        )}
       </section>
     </>
   )

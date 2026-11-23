@@ -1,4 +1,3 @@
-import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -7,20 +6,21 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '10mb', // sesuaikan sama max file size yang lo enforce di form
-    },
-  },
+  // Static export configuration
+  output: 'export',
   images: {
+    unoptimized: true, // Required for static export
     localPatterns: [
       {
-        pathname: '/api/media/file/**',
-      },
-      {
-        pathname: '/images/**', // tambah ini
+        pathname: '/images/**',
       },
     ],
+  },
+  // Disable server-side features for static export
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
@@ -34,6 +34,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname),
   },
+  // Trailing slash for static hosting compatibility
+  trailingSlash: true,
+  // Skip type checking during build (optional, for faster builds)
+  // typescript: {
+  //   ignoreBuildErrors: true,
+  // },
+  // eslint: {
+  //   ignoreDuringBuilds: true,
+  // },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default nextConfig

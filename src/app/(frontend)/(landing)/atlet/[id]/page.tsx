@@ -1,7 +1,7 @@
 // src/app/(frontend)/(admin)/data-atlet/[id]/page.tsx
 import React from 'react'
-import { getPayload } from 'payload'
-import config from '@payload-config'
+import { getAthleteByIdStatic, getAthleteAchievements, getLeaderboard } from '@/lib/static-data'
+import { notFound } from 'next/navigation'
 import {
   ArrowLeft,
   Award,
@@ -15,16 +15,17 @@ import {
   VenusAndMarsIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
 import { calculatePoints } from '@/lib/points'
-import { getAthleteRank } from '@/lib/rank'
 import Image from 'next/image'
-
-export const dynamic = 'force-dynamic'
 
 type PageProps = {
   params: Promise<{ id: string }>
+}
+
+export async function generateStaticParams() {
+  const { dummyAthletes } = await import('@/data/dummy-data')
+  return dummyAthletes.map(athlete => ({ id: athlete.id }))
 }
 
 // 2. Dictionary Pattern untuk Badge Status & Tingkat
@@ -59,232 +60,207 @@ const TingkatBadge = ({ tingkat }: { tingkat: string }) => {
 export default async function DetailAtletPage({ params }: PageProps) {
   const resolvedParams = await params
   const athleteId = resolvedParams.id
-  const payload = await getPayload({ config })
 
-  try {
-    // 3. Parallel Fetching: Ambil user dan prestasinya sekaligus
-    const [user, achievementsData] = await Promise.all([
-      payload.findByID({
-        collection: 'users',
-        id: athleteId,
-        depth: 1,
-      }),
-      payload.find({
-        collection: 'achievements',
-        where: { atlet: { equals: athleteId } },
-        sort: '-tanggalKejuaraan',
-        limit: 100, // Asumsi tampilan riwayat lengkap tanpa paginasi kompleks untuk detail
-        depth: 0,
-      }),
-    ])
-
-    // console.log(user)
-
-    if (user.role !== 'athlete') {
-      return notFound() // Guard: Jangan tampilkan jika ID tersebut bukan atlet
-    }
-
-    // Di dalam DetailAtletPage
-
-    // Hitung berapa banyak orang yang poinnya lebih tinggi
-    const rank = await getAthleteRank(payload, user.totalPoin || 0)
-
-    return (
-      <>
-        <section className="w-full bg-[#C5DDFF] ">
-          <div className="w-full min-h-[200px] flex gap-5 justify-start items-center  px-6 max-w-7xl mx-auto">
-            <Link href={'/atlet#daftar-atlet'} className="flex justify-center items-center">
-              <ArrowLeft />
-            </Link>
-            <h1 className="font-bold text-[45px]">Detail Atlet</h1>
-          </div>
-        </section>
-        <section className="flex flex-col gap-6 max-w-7xl w-full mx-auto my-10 px-5">
-          {/* Header Navigasi */}
-
-          {/* Hero Banner Profil */}
-          <div className="bg-[#8bb4f7] rounded-2xl p-8 flex items-center gap-6 shadow-sm relative overflow-hidden">
-            <div className="flex w-full justify-between items-center">
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 rounded-full bg-white border-4 border-white/50 shadow-md flex items-center justify-center overflow-hidden shrink-0 z-10">
-                  {user.fotoProfil &&
-                  typeof user.fotoProfil === 'object' &&
-                  'url' in user.fotoProfil ? (
-                    <Image
-                      width={100}
-                      height={100}
-                      src={user.fotoProfil.url || ''}
-                      alt="Profil"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User2 className="w-10 h-10 text-slate-300" />
-                  )}
-                  {/* <User2 className="w-10 h-10 text-slate-300" /> */}
-                </div>
-                <div className="flex flex-col gap-1 z-10">
-                  <h1 className="text-3xl font-bold text-slate-900">{user.namaLengkap}</h1>
-                  <div className="text-slate-800 font-medium">Sabuk {user.sabuk}</div>
-                </div>
-              </div>
-              <div className="px-4 py-3 bg-white rounded-lg font-bold">
-                {rank === 'Unranked' ? 'Unranked' : `Rank ${rank}`}
-              </div>
-              {/* Ornamen dekoratif (opsional, meniru gradasi UI) */}
-              <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center gap-5 shadow-sm">
-              <div className="w-14 h-14 rounded-full bg-[#cffafe] text-[#06b6d4] flex items-center justify-center shrink-0">
-                <Award className="w-7 h-7" />
-              </div>
-              <div className="flex flex-col">
-                <div className="text-slate-800 font-bold text-lg">Total Poin</div>
-                <div className="text-2xl font-bold text-slate-900">
-                  {user.totalPoin || 0}{' '}
-                  <span className="text-slate-500 font-medium text-base">poin</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center gap-5 shadow-sm">
-              <div className="w-14 h-14 rounded-full bg-[#dcfce7] text-[#22c55e] flex items-center justify-center shrink-0">
-                <Trophy className="w-7 h-7" />
-              </div>
-              <div className="flex flex-col">
-                <div className="text-slate-800 font-bold text-lg">Total Prestasi</div>
-                <div className="text-2xl font-bold text-slate-900">
-                  {achievementsData.totalDocs}{' '}
-                  <span className="text-slate-500 font-medium text-base">prestasi</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Kartu Informasi Pribadi */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-              <Info className="w-5 h-5 text-blue-500" />
-              <h2 className="font-bold text-slate-800">Informasi Atlet</h2>
-            </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-10">
-              <div className="flex flex-col gap-1">
-                <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" /> Tempat Tanggal Lahir
-                </div>
-                <div className="font-bold text-slate-800">
-                  {user.tempatLahir || '-'},{' '}
-                  {user.tanggalLahir ? formatDate(user.tanggalLahir) : '-'}
-                </div>
-              </div>
-
-              {/* <div className="flex flex-col gap-1">
-                <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                  <Mail className="w-4 h-4" /> Email
-                </div>
-                <div className="font-bold text-slate-800">{user.email}</div>
-              </div> */}
-
-              {/* <div className="flex flex-col gap-1">
-                <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                  <Phone className="w-4 h-4" /> Nomor Telepon
-                </div>
-                <div className="font-bold text-slate-800">{user.nomorTelepon || '-'}</div>
-              </div> */}
-
-              <div className="flex flex-col gap-1">
-                <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Sabuk
-                </div>
-                <div className="font-bold text-slate-800">{user.sabuk || '-'}</div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                  <VenusAndMarsIcon className="w-4 h-4" /> Jenis Kelamin
-                </div>
-                <div className="font-bold text-slate-800">{user.jenisKelamin || '-'}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabel Riwayat Prestasi */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-blue-500" />
-              <h2 className="font-bold text-slate-800">Riwayat Prestasi</h2>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead>
-                  <tr className="bg-slate-50/50 border-b border-slate-200">
-                    <th className="py-4 px-6 font-bold text-slate-700 text-sm">Nama Kejuaraan</th>
-                    <th className="py-4 px-6 font-bold text-slate-700 text-sm">Juara</th>
-                    <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">
-                      Tingkat
-                    </th>
-                    <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">
-                      Status
-                    </th>
-                    <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">Poin</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {achievementsData.docs.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="p-8 text-center text-slate-500">
-                        Atlet ini belum memiliki riwayat prestasi.
-                      </td>
-                    </tr>
-                  ) : (
-                    achievementsData.docs.map((doc: any) => {
-                      const rowPoints = calculatePoints(
-                        doc.jenisKejuaraan,
-                        doc.tingkatKejuaraan,
-                        doc.peringkat,
-                      )
-
-                      return (
-                        <tr
-                          key={doc.id}
-                          className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
-                        >
-                          <td className="py-4 px-6">
-                            <div className="font-bold text-slate-800 text-sm whitespace-normal max-w-[280px]">
-                              {doc.namaKejuaraan}
-                            </div>
-                            {/* Opsional: Render tahun dari tanggalKejuaraan jika desain membutuhkan konteks waktu */}
-                            <div className="text-xs text-slate-400 mt-0.5">
-                              {new Date(doc.tanggalKejuaraan).getFullYear()}
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-sm text-slate-700 font-medium">
-                            {doc.peringkat}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <TingkatBadge tingkat={doc.tingkatKejuaraan} />
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <StatusBadge status={doc.status} />
-                          </td>
-                          <td className="py-4 px-6 text-center font-bold text-slate-800">
-                            {rowPoints}
-                          </td>
-                        </tr>
-                      )
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </>
-    )
-  } catch (error) {
-    // Tangkap error jika ID format tidak valid (bukan number/UUID)
+  // Get athlete from static data
+  const athlete = await getAthleteByIdStatic(athleteId)
+  
+  if (!athlete) {
     return notFound()
   }
+
+  const achievements = await getAthleteAchievements(athleteId)
+  const leaderboard = await getLeaderboard()
+  
+  // Calculate rank from static leaderboard
+  const rankEntry = leaderboard.find(entry => entry.athlete.id === athleteId)
+  const rank = rankEntry ? rankEntry.rank : 'Unranked'
+
+  return (
+    <>
+      <section className="w-full bg-[#C5DDFF] ">
+        <div className="w-full min-h-[200px] flex gap-5 justify-start items-center  px-6 max-w-7xl mx-auto">
+          <Link href={'/atlet#daftar-atlet'} className="flex justify-center items-center">
+            <ArrowLeft />
+          </Link>
+          <h1 className="font-bold text-[45px]">Detail Atlet</h1>
+        </div>
+      </section>
+      <section className="flex flex-col gap-6 max-w-7xl w-full mx-auto my-10 px-5">
+        {/* Header Navigasi */}
+
+        {/* Hero Banner Profil */}
+        <div className="bg-[#8bb4f7] rounded-2xl p-8 flex items-center gap-6 shadow-sm relative overflow-hidden">
+          <div className="flex w-full justify-between items-center">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 rounded-full bg-white border-4 border-white/50 shadow-md flex items-center justify-center overflow-hidden shrink-0 z-10">
+                {athlete.fotoProfil ? (
+                  <Image
+                    width={100}
+                    height={100}
+                    src={athlete.fotoProfil}
+                    alt="Profil"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User2 className="w-10 h-10 text-slate-300" />
+                )}
+              </div>
+              <div className="flex flex-col gap-1 z-10">
+                <h1 className="text-3xl font-bold text-slate-900">{athlete.namaLengkap}</h1>
+                <div className="text-slate-800 font-medium">Sabuk {athlete.sabuk}</div>
+              </div>
+            </div>
+            <div className="px-4 py-3 bg-white rounded-lg font-bold">
+              {rank === 'Unranked' ? 'Unranked' : `Rank ${rank}`}
+            </div>
+            {/* Ornamen dekoratif (opsional, meniru gradasi UI) */}
+            <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center gap-5 shadow-sm">
+            <div className="w-14 h-14 rounded-full bg-[#cffafe] text-[#06b6d4] flex items-center justify-center shrink-0">
+              <Award className="w-7 h-7" />
+            </div>
+            <div className="flex flex-col">
+              <div className="text-slate-800 font-bold text-lg">Total Poin</div>
+              <div className="text-2xl font-bold text-slate-900">
+                {athlete.totalPoin || 0}{' '}
+                <span className="text-slate-500 font-medium text-base">poin</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center gap-5 shadow-sm">
+            <div className="w-14 h-14 rounded-full bg-[#dcfce7] text-[#22c55e] flex items-center justify-center shrink-0">
+              <Trophy className="w-7 h-7" />
+            </div>
+            <div className="flex flex-col">
+              <div className="text-slate-800 font-bold text-lg">Total Prestasi</div>
+              <div className="text-2xl font-bold text-slate-900">
+                {achievements.length}{' '}
+                <span className="text-slate-500 font-medium text-base">prestasi</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Kartu Informasi Pribadi */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+            <Info className="w-5 h-5 text-blue-500" />
+            <h2 className="font-bold text-slate-800">Informasi Atlet</h2>
+          </div>
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-10">
+            <div className="flex flex-col gap-1">
+              <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                <Calendar className="w-4 h-4" /> Tempat Tanggal Lahir
+              </div>
+              <div className="font-bold text-slate-800">
+                {athlete.tempatLahir || '-'},{' '}
+                {athlete.tanggalLahir ? formatDate(athlete.tanggalLahir) : '-'}
+              </div>
+            </div>
+
+            {/* <div className="flex flex-col gap-1">
+              <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                <Mail className="w-4 h-4" /> Email
+              </div>
+              <div className="font-bold text-slate-800">{athlete.email}</div>
+            </div> */}
+
+            {/* <div className="flex flex-col gap-1">
+              <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                <Phone className="w-4 h-4" /> Nomor Telepon
+              </div>
+              <div className="font-bold text-slate-800">{athlete.nomorTelepon || '-'}</div>
+            </div> */}
+
+            <div className="flex flex-col gap-1">
+              <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                <MapPin className="w-4 h-4" /> Sabuk
+              </div>
+              <div className="font-bold text-slate-800">{athlete.sabuk || '-'}</div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                <VenusAndMarsIcon className="w-4 h-4" /> Jenis Kelamin
+              </div>
+              <div className="font-bold text-slate-800">{athlete.jenisKelamin || '-'}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabel Riwayat Prestasi */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-blue-500" />
+            <h2 className="font-bold text-slate-800">Riwayat Prestasi</h2>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr className="bg-slate-50/50 border-b border-slate-200">
+                  <th className="py-4 px-6 font-bold text-slate-700 text-sm">Nama Kejuaraan</th>
+                  <th className="py-4 px-6 font-bold text-slate-700 text-sm">Juara</th>
+                  <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">
+                    Tingkat
+                  </th>
+                  <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">
+                    Status
+                  </th>
+                  <th className="py-4 px-6 font-bold text-slate-700 text-sm text-center">Poin</th>
+                </tr>
+              </thead>
+              <tbody>
+                {achievements.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="p-8 text-center text-slate-500">
+                      Atlet ini belum memiliki riwayat prestasi.
+                    </td>
+                  </tr>
+                ) : (
+                  achievements.map((doc: any) => {
+                    // Points already pre-calculated in dummy data
+                    const rowPoints = doc.poin
+
+                    return (
+                      <tr
+                        key={doc.id}
+                        className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="py-4 px-6">
+                          <div className="font-bold text-slate-800 text-sm whitespace-normal max-w-[280px]">
+                            {doc.namaKejuaraan}
+                          </div>
+                          {/* Opsional: Render tahun dari tanggalKejuaraan jika desain membutuhkan konteks waktu */}
+                          <div className="text-xs text-slate-400 mt-0.5">
+                            {new Date(doc.tanggalKejuaraan).getFullYear()}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-sm text-slate-700 font-medium">
+                          {doc.peringkat}
+                        </td>
+                        <td className="py-4 px-6 text-center">
+                          <TingkatBadge tingkat={doc.tingkatKejuaraan} />
+                        </td>
+                        <td className="py-4 px-6 text-center">
+                          <StatusBadge status={doc.status} />
+                        </td>
+                        <td className="py-4 px-6 text-center font-bold text-slate-800">
+                          {rowPoints}
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </>
+  )
 }

@@ -1,50 +1,60 @@
-import { getLeaderboardData } from '@/app/api/getPayloadData'
+'use client'
+
+import React, { useState, useMemo, useEffect } from 'react'
+import { getLeaderboard } from '@/lib/static-data'
 import { getBeltColor } from '@/lib/utils'
 import { User2 } from 'lucide-react'
-import React from 'react'
 import Podium from '../../components/Podium'
 import PaginationControls from '../../components/PaginationControls'
-import { getPayload } from 'payload'
-import config from '@payload-config'
+import SearchBar from '../../components/SearchBar'
 import Image from 'next/image'
 
-export const dynamic = 'force-dynamic'
-
-type PageProps = {
-  searchParams: Promise<{ [key: string]: string | undefined }>
-}
-export default async function page({ searchParams }: PageProps) {
-  const resolvedParams = await searchParams
-  const payload = await getPayload({ config })
-  const currentPage = Number(resolvedParams.page) || 1
+export default function page() {
+  const [fullLeaderboard, setFullLeaderboard] = useState<Awaited<ReturnType<typeof getLeaderboard>>>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
   const limitPerPage = 10
-  const searchTerm = resolvedParams.search || ''
-  const queryWhere: any = {
-    role: { equals: 'athlete' },
-    totalPoin: { greater_than: 0 },
-  }
-  if (searchTerm) {
-    // Sesuaikan field pencarian jika perlu
-    queryWhere.namaLengkap = { contains: searchTerm }
-  }
 
-  const { top3, tableDocs, pagination } = await getLeaderboardData({
-    limit: limitPerPage,
-    search: searchTerm,
-    page: currentPage,
-  })
+  // Fetch leaderboard on mount
+  useEffect(() => {
+    getLeaderboard().then(setFullLeaderboard)
+  }, [])
 
-  const tableDocsWIthMedals = await Promise.all(
-    tableDocs.map(async (doc: any) => {
-      const countResult = await payload.count({
-        collection: 'achievements',
-        where: {
-          and: [{ atlet: { equals: doc.id } }, { status: { equals: 'approved' } }],
-        },
-      })
-      return { ...doc, totalMedali: countResult.totalDocs }
-    }),
-  )
+  // Filter by search term
+  const filteredLeaderboard = useMemo(() => {
+    if (!searchTerm) return fullLeaderboard
+    return fullLeaderboard.filter(entry =>
+      entry.athlete.namaLengkap.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [fullLeaderboard, searchTerm])
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
+
+  // Calculate pagination
+  const totalItems = filteredLeaderboard.length
+  const totalPages = Math.ceil(totalItems / limitPerPage)
+  const startIndex = (currentPage - 1) * limitPerPage
+  const endIndex = startIndex + limitPerPage
+  const tableDocs = filteredLeaderboard.slice(startIndex, endIndex)
+  const top3 = filteredLeaderboard.slice(0, 3).map(entry => entry.athlete)
+
+  // Calculate absolute rank for each entry
+  const tableDocsWithRank = tableDocs.map((entry, index) => ({
+    ...entry,
+    absoluteRank: startIndex + index + 1,
+    totalMedali: entry.athlete.achievements?.length || 0,
+  }))
+
+  const pagination = {
+    totalPages,
+    hasNextPage: currentPage < totalPages,
+    hasPrevPage: currentPage > 1,
+    nextPage: currentPage + 1,
+    prevPage: currentPage - 1,
+  }
 
   return (
     <>
@@ -84,14 +94,14 @@ export default async function page({ searchParams }: PageProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {tableDocsWIthMedals.length === 0 ? (
+                    {tableDocsWithRank.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-slate-500">
                           Tidak ada data atlet yang ditemukan.
                         </td>
                       </tr>
                     ) : (
-                      tableDocsWIthMedals.map((doc: any, index: number) => {
+                      tableDocsWithRank.map((doc: any, index: number) => {
                         const absoluteRank = doc.absoluteRank
 
                         // Indikator Warna Rank (Hanya untuk Top 3)
@@ -110,7 +120,7 @@ export default async function page({ searchParams }: PageProps) {
 
                         return (
                           <tr
-                            key={doc.id}
+                            key={doc.athlete.id}
                             className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
                           >
                             <td className="py-4 px-6 text-center">
@@ -123,11 +133,11 @@ export default async function page({ searchParams }: PageProps) {
                             <td className="py-4 px-6">
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                                  {doc.fotoProfil?.url ? (
+                                  {doc.athlete.fotoProfil ? (
                                     <Image
                                       width={100}
                                       height={100}
-                                      src={doc.fotoProfil.url}
+                                      src={doc.athlete.fotoProfil}
                                       alt=""
                                       className="w-full h-full object-cover"
                                     />
@@ -136,20 +146,20 @@ export default async function page({ searchParams }: PageProps) {
                                   )}
                                 </div>
                                 <div className="font-bold text-slate-800 text-sm">
-                                  {doc.namaLengkap}
+                                  {doc.athlete.namaLengkap}
                                 </div>
                               </div>
                             </td>
                             <td className="py-4 px-6 text-center flex justify-center">
                               <span
-                                className={`px-4 py-1 rounded-md text-xs font-bold border ${getBeltColor(doc.sabuk)}`}
+                                className={`px-4 py-1 rounded-md text-xs font-bold border ${getBeltColor(doc.athlete.sabuk)}`}
                               >
-                                {doc.sabuk || 'Belum Diatur'}
+                                {doc.athlete.sabuk || 'Belum Diatur'}
                               </span>
                             </td>
                             <td className="py-4 px-6 text-center">
                               <span className="text-sm font-medium text-slate-700">
-                                {doc.totalPoin || 0}{' '}
+                                {doc.poin || 0}{' '}
                                 <span className="text-slate-400 font-normal">poin</span>
                               </span>
                             </td>
@@ -165,11 +175,11 @@ export default async function page({ searchParams }: PageProps) {
               </div>
               <PaginationControls
                 currentPage={currentPage}
-                totalPages={pagination.totalPages}
+                totalPages={totalPages}
                 hasNextPage={pagination.hasNextPage}
                 hasPrevPage={pagination.hasPrevPage}
-                nextPage={pagination.nextPage}
-                prevPage={pagination.prevPage}
+                onNext={() => setCurrentPage(p => p + 1)}
+                onPrev={() => setCurrentPage(p => p - 1)}
               />
             </div>
           </div>

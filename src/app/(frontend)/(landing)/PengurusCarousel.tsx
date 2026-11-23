@@ -20,7 +20,8 @@ export default function PengurusList({ data, variant = 'carousel' }: PengurusLis
 
   // Komponen Card yang reusable (didefinisikan di dalam sini atau dipisah ke file lain)
   const PengurusCard = ({ item }: { item: any }) => {
-    const imageUrl = item?.foto?.sizes?.medium?.url || item?.foto?.url || '/fallback-avatar.png'
+    // Handle both Payload media object and static string path
+    const imageUrl = item?.foto?.sizes?.medium?.url || item?.foto?.url || item?.foto || '/images/user-placeholder.png'
     return (
       <div className="flex flex-col items-center group cursor-pointer w-full">
         <div className="relative w-full max-w-[300px] aspect-[6/7] rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-shadow mx-auto">

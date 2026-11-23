@@ -16,7 +16,7 @@ import fs from 'fs'
 import path from 'path'
 
 // Set Indonesian locale for faker
-faker.setLocale('id_ID')
+// faker.setLocale('id_ID') // Not available in this version
 
 // ============================================
 // CONFIGURATION
@@ -201,19 +201,19 @@ function generateAthleteProfile(index: number) {
   
   // Weighted belt distribution (more lower belts)
   const sabukWeights = [
-    { belt: 'Putih', weight: 30 },
-    { belt: 'Kuning', weight: 20 },
-    { belt: 'Hijau', weight: 15 },
-    { belt: 'Biru', weight: 12 },
-    { belt: 'Coklat Kyu 3', weight: 8 },
-    { belt: 'Coklat Kyu 2', weight: 6 },
-    { belt: 'Coklat Kyu 1', weight: 4 },
-    { belt: 'Hitam Dan 1', weight: 3 },
-    { belt: 'Hitam Dan 2', weight: 1.5 },
-    { belt: 'Hitam Dan 3', weight: 0.5 },
+    { value: 'Putih', weight: 30 },
+    { value: 'Kuning', weight: 20 },
+    { value: 'Hijau', weight: 15 },
+    { value: 'Biru', weight: 12 },
+    { value: 'Coklat Kyu 3', weight: 8 },
+    { value: 'Coklat Kyu 2', weight: 6 },
+    { value: 'Coklat Kyu 1', weight: 4 },
+    { value: 'Hitam Dan 1', weight: 3 },
+    { value: 'Hitam Dan 2', weight: 1.5 },
+    { value: 'Hitam Dan 3', weight: 0.5 },
   ]
   
-  const sabuk = faker.helpers.weightedArrayElement(sabukWeights)
+  const sabuk = faker.helpers.weightedArrayElement(sabukWeights) as string
   const jenisKelamin = faker.helpers.arrayElement(['Laki-laki', 'Perempuan'])
   
   return {
@@ -224,7 +224,7 @@ function generateAthleteProfile(index: number) {
     jenisKelamin,
     tempatLahir: faker.location.city(),
     tanggalLahir: faker.date.birthdate({ min: 15, max: 35, mode: 'age' }).toISOString().split('T')[0],
-    nomorTelepon: faker.phone.number('08#########'),
+    nomorTelepon: `08${faker.string.numeric(9)}`,
     authProvider: ['local'] as const,
   }
 }

@@ -1,17 +1,14 @@
-import { getPengurusList } from '@/app/api/getPayloadData'
+import { getAllPengurus, getPengurusInti, getDivisiLatihan, getDivisiHumas, getDivisiKRT } from '@/lib/static-data'
 import React from 'react'
 import PengurusList from '../PengurusCarousel'
 
 export default async function page() {
-  const pengurus = await getPengurusList()
-  // console.log('Pengurus :', pengurus)
-
-  const divisi1 = pengurus.filter
-
-  const pengurusInti = pengurus.filter((p) => p.divisi === 'Pengurus Inti')
-  const divisiLatihan = pengurus.filter((p) => p.divisi === 'Divisi Latihan')
-  const divisiHumas = pengurus.filter((p) => p.divisi === 'Divisi Humas')
-  const divisiKrt = pengurus.filter((p) => p.divisi === 'Divisi KRT/UU')
+  const pengurus = await getAllPengurus()
+  
+  const pengurusInti = await getPengurusInti()
+  const divisiLatihan = await getDivisiLatihan()
+  const divisiHumas = await getDivisiHumas()
+  const divisiKrt = await getDivisiKRT()
 
   return (
     <>

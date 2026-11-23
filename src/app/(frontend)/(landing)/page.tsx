@@ -3,23 +3,28 @@ import Link from 'next/link'
 
 import '@/app/globals.css'
 import { ArrowRight, ImageIcon, User2 } from 'lucide-react'
-import { getKontenData, getLeaderboardData, getPengurusList } from '@/app/api/getPayloadData'
+import { 
+  getLeaderboard, 
+  getPublishedKonten, 
+  getAllPengurus,
+  getPengurusInti 
+} from '@/lib/static-data'
 import Podium from '../components/Podium'
 import { getBeltColor } from '@/lib/utils'
 import KontenCard from '../components/KontenCard'
 import Image from 'next/image'
 import PengurusCarousel from './PengurusCarousel'
-export default async function LandingPage() {
-  const pengurus = await getPengurusList()
-  // console.log('Pengurus :', pengurus)
 
-  const { top3, tableDocs } = await getLeaderboardData({
-    limit: 5,
-  })
-  const { docs: kontenDocs } = await getKontenData({
-    limit: 0,
-  })
-  // console.log(event)
+export default async function LandingPage() {
+  const pengurus = await getAllPengurus()
+  const pengurusInti = await getPengurusInti()
+  
+  const leaderboard = await getLeaderboard()
+  const top3 = leaderboard.slice(0, 3).map(entry => entry.athlete)
+  const tableDocs = leaderboard.slice(3, 10)
+
+  const kontenDocs = await getPublishedKonten()
+
   return (
     <>
       <main className="grow">
@@ -50,10 +55,10 @@ export default async function LandingPage() {
               UKM Karate INKAI UNY
             </p>
             <Link
-              href="/register"
+              href="/atlet"
               className="mt-4 bg-[#4285F4] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl"
             >
-              Gabung Sekarang
+              Lihat Atlet Kami
             </Link>
           </div>
         </section>
@@ -108,16 +113,12 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* KEGIATAN & PROGRAM UNGGULAN (EMPTY SECTION) */}
+        {/* KEGIATAN & PROGRAM UNGGULAN */}
         <section id="kegiatan" className="py-24 px-6 bg-white w-full border-y border-slate-100">
           <div className="max-w-7xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-blue-600 mb-12">
               Kegiatan & Program Unggulan Kami
             </h2>
-            {/* Slot for Kegiatan Cards */}
-            {/* <div className="min-h-[300px] border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-400">
-              [ Komponen Kegiatan Disini ]
-            </div> */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2 text-left">
               {kontenDocs.length === 0 ? (
                 <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
@@ -140,7 +141,7 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* LEADERBOARD (EMPTY SECTION) */}
+        {/* LEADERBOARD */}
         <section id="leaderboard" className="py-24 px-6 w-full">
           <div className="max-w-7xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-blue-600 mb-12">
@@ -177,8 +178,8 @@ export default async function LandingPage() {
                           </td>
                         </tr>
                       ) : (
-                        tableDocs.map((doc: any, index: number) => {
-                          const absoluteRank = doc.absoluteRank
+                        tableDocs.map((entry: any, index: number) => {
+                          const absoluteRank = entry.rank
 
                           // Indikator Warna Rank (Hanya untuk Top 3)
                           let rankColor = 'text-slate-700 font-bold'
@@ -196,7 +197,7 @@ export default async function LandingPage() {
 
                           return (
                             <tr
-                              key={doc.id}
+                              key={entry.athlete.id}
                               className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
                             >
                               <td className="py-4 px-6 text-center">
@@ -209,9 +210,9 @@ export default async function LandingPage() {
                               <td className="py-4 px-6">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                                    {doc.fotoProfil?.url ? (
+                                    {entry.athlete.fotoProfil ? (
                                       <img
-                                        src={doc.fotoProfil.url}
+                                        src={entry.athlete.fotoProfil}
                                         alt=""
                                         className="w-full h-full object-cover"
                                       />
@@ -220,26 +221,25 @@ export default async function LandingPage() {
                                     )}
                                   </div>
                                   <div className="font-bold text-slate-800 text-sm">
-                                    {doc.namaLengkap}
+                                    {entry.athlete.namaLengkap}
                                   </div>
                                 </div>
                               </td>
                               <td className="py-4 px-6 text-center flex justify-center">
                                 <span
-                                  className={`px-4 py-1 rounded-md text-xs font-bold border ${getBeltColor(doc.sabuk)}`}
+                                  className={`px-4 py-1 rounded-md text-xs font-bold border ${getBeltColor(entry.athlete.sabuk)}`}
                                 >
-                                  {doc.sabuk || 'Belum Diatur'}
+                                  {entry.athlete.sabuk || 'Belum Diatur'}
                                 </span>
                               </td>
                               <td className="py-4 px-6 text-center">
                                 <span className="text-sm font-medium text-slate-700">
-                                  {doc.totalPoin || 0}{' '}
+                                  {entry.poin || 0}{' '}
                                   <span className="text-slate-400 font-normal">poin</span>
                                 </span>
                               </td>
                               <td className="py-4 px-6 text-center text-sm font-medium text-slate-700">
-                                0{' '}
-                                {/* Ganti dengan doc.totalMedali jika field-nya sudah Anda buat nanti */}
+                                {entry.athlete.achievements?.length || 0}{' '}
                               </td>
                             </tr>
                           )
@@ -270,7 +270,6 @@ export default async function LandingPage() {
             <PengurusCarousel data={pengurus} />
           </div>
         </section>
-        {/* <img src={getOptimizedImageUrl(item.thumbnail?.url, { width: 400, quality: 75 })} /> */}
 
         {/* CTA AYO BERGABUNG SECTION */}
         <section className="relative w-full py-24 flex items-center justify-center text-center px-6 mt-10">
@@ -294,10 +293,10 @@ export default async function LandingPage() {
               INKAI UNY.
             </p>
             <Link
-              href="/register"
+              href="/atlet"
               className="mt-4 bg-white text-blue-600 hover:bg-slate-50 px-8 py-3 rounded-lg font-bold transition-all shadow-md"
             >
-              Gabung Sekarang
+              Lihat Atlet Kami
             </Link>
           </div>
         </section>

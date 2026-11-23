@@ -1,7 +1,8 @@
 // src/app/(frontend)/(public)/atlet/page.tsx
-import React from 'react'
-import PaginationControls from '@/app/(frontend)/components/PaginationControls'
-import { getAthletesData } from '@/app/api/getPayloadData'
+'use client'
+
+import React, { useState, useMemo } from 'react'
+import { getAllAthletes } from '@/lib/static-data'
 import SearchBar from '../../components/SearchBar'
 import TableFilter, { FilterConfig } from '../../components/TableFilter'
 import { getBeltColor, sabukOptions } from '@/lib/utils'
@@ -9,32 +10,56 @@ import { User2, Users } from 'lucide-react'
 import SortableTableHeader from '../../components/SortableTableHeader'
 import Link from 'next/link'
 import Image from 'next/image'
-// import AthleteCard from '../../components/AthleteCard' // Contoh komponen UI
+import PaginationControls from '@/app/(frontend)/components/PaginationControls'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
-type PageProps = {
-  searchParams: Promise<{ [key: string]: string | undefined }>
-}
-
-export default async function Page({ searchParams }: PageProps) {
-  const resolvedParams = await searchParams
-  const currentPage = Number(resolvedParams.page) || 1
-  const searchTerm = resolvedParams.search || ''
-  const filterSabuk = resolvedParams.sabuk ? resolvedParams.sabuk.split(',') : []
+export default function Page() {
+  const [allAthletes, setAllAthletes] = useState<Awaited<ReturnType<typeof getAllAthletes>>>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterSabuk, setFilterSabuk] = useState<Record<string, string[]>>({ sabuk: [] })
+  const [currentPage, setCurrentPage] = useState(1)
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const limitPerPage = 10
-  const sortField = resolvedParams.sort
-  const sortDir = resolvedParams.dir
-  // Reuse the centralized fetcher
-  const tableData = await getAthletesData({
-    page: currentPage,
-    limit: limitPerPage,
-    search: searchTerm,
-    sabuk: filterSabuk,
-    sortField,
-    sortDir,
-  })
+
+  // Fetch athletes on mount
+  React.useEffect(() => {
+    getAllAthletes().then(setAllAthletes)
+  }, [])
+
+  // Filter and sort athletes
+  const filteredAthletes = useMemo(() => {
+    let result = allAthletes
+
+    if (searchTerm) {
+      result = result.filter(a =>
+        a.namaLengkap.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    const selectedSabuk = filterSabuk.sabuk || []
+    if (selectedSabuk.length > 0) {
+      result = result.filter(a => selectedSabuk.includes(a.sabuk))
+    }
+
+    if (sortConfig) {
+      result = [...result].sort((a, b) => {
+        const aVal = a[sortConfig.key as keyof typeof a]
+        const bVal = b[sortConfig.key as keyof typeof b]
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1
+        return 0
+      })
+    }
+
+    return result
+  }, [allAthletes, searchTerm, filterSabuk, sortConfig])
+
+  // Pagination
+  const totalDocs = filteredAthletes.length
+  const totalPages = Math.ceil(totalDocs / limitPerPage)
+  const startIndex = (currentPage - 1) * limitPerPage
+  const endIndex = startIndex + limitPerPage
+  const docs = filteredAthletes.slice(startIndex, endIndex)
+
   const sabukFilters: FilterConfig[] = [
     {
       key: 'sabuk',
@@ -42,6 +67,17 @@ export default async function Page({ searchParams }: PageProps) {
       options: sabukOptions.map((sabuk) => ({ label: sabuk, value: sabuk })),
     },
   ]
+
+  const handleSort = (key: string) => {
+    setSortConfig(current => ({
+      key,
+      direction: current?.key === key && current.direction === 'asc' ? 'desc' : 'asc'
+    }))
+  }
+
+  const handleFilterChange = (key: string, values: string[]) => {
+    setFilterSabuk(prev => ({ ...prev, [key]: values }))
+  }
 
   return (
     <>
@@ -63,8 +99,16 @@ export default async function Page({ searchParams }: PageProps) {
         <div className="flex flex-col gap-6 w-full flex-wrap">
           {/* Header Section dengan Tombol Tambah */}
           <div className="flex gap-5">
-            <SearchBar placeholder="Cari nama atlet..." />
-            <TableFilter filters={sabukFilters} />
+            <SearchBar 
+              placeholder="Cari nama atlet..." 
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+            <TableFilter 
+              filters={sabukFilters} 
+              selectedValues={filterSabuk}
+              onChange={handleFilterChange}
+            />
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
@@ -75,7 +119,7 @@ export default async function Page({ searchParams }: PageProps) {
                 <h2 className="font-semibold text-slate-800 text-[15px]">Daftar Atlet</h2>
               </div>
               <div className="text-sm font-medium text-slate-500 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
-                Total: {tableData.totalDocs} Atlet
+                Total: {totalDocs} Atlet
               </div>
             </div>
 
@@ -85,16 +129,25 @@ export default async function Page({ searchParams }: PageProps) {
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-200">
                     <th className="py-4 px-6 font-bold text-slate-700 text-sm">No.</th>
-                    <SortableTableHeader label="Nama Atlet" sortKey="namaLengkap" />
+                    <SortableTableHeader 
+                      label="Nama Atlet" 
+                      sortKey="namaLengkap" 
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
+                    />
                     <SortableTableHeader
                       align="center"
                       label="Sabuk"
                       sortKey="sabuk"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
                       className="text-center"
                     />
                     <SortableTableHeader
                       label="Total Poin"
                       sortKey="totalPoin"
+                      sortConfig={sortConfig}
+                      onSort={handleSort}
                       className="text-center"
                     />
                     {/* <SortableTableHeader label="Email" sortKey="email" /> */}
@@ -102,31 +155,31 @@ export default async function Page({ searchParams }: PageProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {tableData.docs.length === 0 ? (
+                  {docs.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-8 text-center text-slate-500">
                         Belum ada data atlet yang terdaftar.
                       </td>
                     </tr>
                   ) : (
-                    tableData.docs.map((doc: any, index) => (
+                    docs.map((doc: any, index) => (
                       <tr
                         key={doc.id}
                         className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
                       >
-                        {/* 3. Kolom Nama dengan Avatar Dummy */}
-                        {/* 4. Kolom Sabuk (Pill Style) */}
+                        {/* No. */}
                         <td className="py-4 px-6 text-center flex justify-center">
-                          {(currentPage - 1) * limitPerPage + index + 1}
+                          {startIndex + index + 1}
                         </td>
+                        {/* 3. Kolom Nama dengan Avatar Dummy */}
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                              {doc.fotoProfil?.url ? (
+                              {doc.fotoProfil ? (
                                 <Image
                                   width={100}
                                   height={100}
-                                  src={doc.fotoProfil.url}
+                                  src={doc.fotoProfil}
                                   alt=""
                                   className="w-full h-full object-cover"
                                 />
@@ -157,10 +210,7 @@ export default async function Page({ searchParams }: PageProps) {
                           </span>
                         </td>
 
-                        {/* 6. Kolom Email */}
-                        {/* <td className="py-4 px-6 text-sm text-slate-500">{doc.email}</td> */}
-
-                        {/* 7. Kolom Aksi (Detail & Edit) */}
+                        {/* 6. Kolom Aksi (Detail & Edit) */}
                         <td className="py-4 px-6 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Link
@@ -180,11 +230,11 @@ export default async function Page({ searchParams }: PageProps) {
 
             <PaginationControls
               currentPage={currentPage}
-              totalPages={tableData.totalPages}
-              hasNextPage={tableData.hasNextPage}
-              hasPrevPage={tableData.hasPrevPage}
-              nextPage={tableData.nextPage}
-              prevPage={tableData.prevPage}
+              totalPages={totalPages}
+              hasNextPage={currentPage < totalPages}
+              hasPrevPage={currentPage > 1}
+              onNext={() => setCurrentPage(p => p + 1)}
+              onPrev={() => setCurrentPage(p => p - 1)}
             />
           </div>
         </div>

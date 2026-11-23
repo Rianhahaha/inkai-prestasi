@@ -1,8 +1,6 @@
 // src/components/PaginationControls.tsx
-'use client' // [!] Wajib ditambahkan untuk mengakses useSearchParams
+'use client'
 
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PaginationProps {
@@ -12,7 +10,8 @@ interface PaginationProps {
   hasPrevPage: boolean
   nextPage?: number | null
   prevPage?: number | null
-  currentStatus?: string // Dipertahankan agar tidak memecah props di tempat lain, walau sudah tidak terlalu dibutuhkan
+  onNext?: () => void
+  onPrev?: () => void
 }
 
 export default function PaginationControls({
@@ -22,22 +21,10 @@ export default function PaginationControls({
   hasPrevPage,
   nextPage,
   prevPage,
+  onNext,
+  onPrev,
 }: PaginationProps) {
-  const searchParams = useSearchParams()
-
   if (totalPages <= 1) return null
-
-  const buildUrl = (targetPage: number | null | undefined) => {
-    if (!targetPage) return '#'
-
-    // [!] Kloning seluruh parameter URL yang sedang aktif (termasuk filter & search)
-    const params = new URLSearchParams(searchParams.toString())
-
-    // Timpa atau set hanya parameter 'page'
-    params.set('page', targetPage.toString())
-
-    return `?${params.toString()}`
-  }
 
   return (
     <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
@@ -47,14 +34,13 @@ export default function PaginationControls({
       </div>
       <div className="flex gap-2">
         {hasPrevPage ? (
-          <Link
-            href={buildUrl(prevPage)}
-            scroll={false} // [!] Mencegah lompatan kasar ke atas halaman saat ganti page
+          <button
+            onClick={onPrev}
             className="flex items-center gap-1 px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Sebelumnya
-          </Link>
+          </button>
         ) : (
           <button
             disabled
@@ -66,14 +52,13 @@ export default function PaginationControls({
         )}
 
         {hasNextPage ? (
-          <Link
-            href={buildUrl(nextPage)}
-            scroll={false} // [!] Mencegah lompatan kasar ke atas halaman saat ganti page
+          <button
+            onClick={onNext}
             className="flex items-center gap-1 px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
           >
             Selanjutnya
             <ChevronRight className="w-4 h-4" />
-          </Link>
+          </button>
         ) : (
           <button
             disabled

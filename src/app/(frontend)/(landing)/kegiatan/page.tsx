@@ -1,31 +1,70 @@
-import { getKontenData } from '@/app/api/getPayloadData'
+'use client'
+
+import React, { useState, useMemo, useEffect } from 'react'
+import { getAllKonten, getUpcomingEvents } from '@/lib/static-data'
+import { categoryOptions } from '@/lib/utils'
 import { AlertCircle, ImageIcon } from 'lucide-react'
-import React from 'react'
 import KontenCard from '../../components/KontenCard'
 import PaginationControls from '../../components/PaginationControls'
 import SearchBar from '../../components/SearchBar'
-import { categoryOptions } from '@/lib/utils'
 import Link from 'next/link'
 import JadwalCarousel from './JadwalCarousel'
-export const dynamic = 'force-dynamic'
 
-type PageProps = {
-  searchParams: Promise<{ [key: string]: string | undefined }>
-}
-export default async function page({ searchParams }: PageProps) {
-  const resolvedParams = await searchParams
-  const currentPage = Number(resolvedParams.page) || 1
+export default function page() {
+  const [allKonten, setAllKonten] = useState<Awaited<ReturnType<typeof getAllKonten>>>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [activeCategory, setActiveCategory] = useState('Semua')
+  const limitPerPage = 9
 
-  const searchTerm = resolvedParams.search || ''
   const categorylist = ['Semua', ...categoryOptions]
-  const activeCategory = resolvedParams.category || 'Semua'
-  const currentCategory = resolvedParams.category || 'Semua' // Ambil dari URL
-  const { docs: kontenDocs, pagination } = await getKontenData({
-    status: 'published',
-    search: searchTerm,
-    page: currentPage,
-    category: currentCategory,
-  })
+
+  // Fetch konten on mount
+  useEffect(() => {
+    getAllKonten().then(setAllKonten)
+  }, [])
+
+  // Filter and sort konten
+  const filteredKonten = useMemo(() => {
+    let result = allKonten
+
+    if (activeCategory !== 'Semua') {
+      result = result.filter(k => k.kategori === activeCategory)
+    }
+
+    if (searchTerm) {
+      result = result.filter(k => 
+        k.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        k.ringkasan.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    // Sort by publishedAt descending
+    result.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+
+    return result
+  }, [allKonten, activeCategory, searchTerm])
+
+  // Pagination
+  const totalDocs = filteredKonten.length
+  const totalPages = Math.ceil(totalDocs / limitPerPage)
+  const startIndex = (currentPage - 1) * limitPerPage
+  const endIndex = startIndex + limitPerPage
+  const kontenDocs = filteredKonten.slice(startIndex, endIndex)
+
+  const pagination = {
+    totalDocs,
+    totalPages,
+    hasNextPage: currentPage < totalPages,
+    hasPrevPage: currentPage > 1,
+    nextPage: currentPage + 1,
+    prevPage: currentPage - 1,
+  }
+
+  // Reset to page 1 when category or search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [activeCategory, searchTerm])
 
   return (
     <>
@@ -63,17 +102,9 @@ export default async function page({ searchParams }: PageProps) {
             {categorylist.map((cat) => {
               const isActive = activeCategory === cat
               return (
-                <Link
+                <button
                   key={cat}
-                  href={{
-                    pathname: '/kegiatan', // sesuaikan route kamu
-                    query: {
-                      ...resolvedParams,
-                      category: cat === 'Semua' ? undefined : cat,
-                      page: 1, // Reset ke page 1 tiap ganti filter
-                    },
-                    hash: 'konten-section',
-                  }}
+                  onClick={() => setActiveCategory(cat)}
                   className={`px-6 py-2.5 rounded-lg font-semibold transition-colors border 
                   ${
                     isActive
@@ -82,12 +113,16 @@ export default async function page({ searchParams }: PageProps) {
                   }`}
                 >
                   {cat}
-                </Link>
+                </button>
               )
             })}
           </div>
           <div className="w-full">
-            <SearchBar placeholder="Cari judul konten..." />
+            <SearchBar 
+              placeholder="Cari judul konten..." 
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2 w-full">
             {kontenDocs.length === 0 ? (
@@ -104,11 +139,11 @@ export default async function page({ searchParams }: PageProps) {
             <div className="mt-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-center">
               <PaginationControls
                 currentPage={currentPage}
-                totalPages={pagination.totalPages}
+                totalPages={totalPages}
                 hasNextPage={pagination.hasNextPage}
                 hasPrevPage={pagination.hasPrevPage}
-                nextPage={pagination.nextPage}
-                prevPage={pagination.prevPage}
+                onNext={() => setCurrentPage(p => p + 1)}
+                onPrev={() => setCurrentPage(p => p - 1)}
               />
             </div>
           )}

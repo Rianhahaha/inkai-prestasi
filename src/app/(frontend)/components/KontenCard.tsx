@@ -25,6 +25,16 @@ export default function KontenCard({
   }
   const thumbnailUrl = getMediaUrl(item.thumbnail)
 
+  // Safe date formatting
+  const safeFormatDate = (dateStr: string | undefined): string => {
+    if (!dateStr) return ''
+    try {
+      return formatDate(dateStr)
+    } catch {
+      return ''
+    }
+  }
+
   // console.log(item)
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col h-full text-left">
@@ -56,7 +66,7 @@ export default function KontenCard({
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <CalendarDays className="w-4 h-4 text-blue-500 shrink-0" />
             <span className="truncate">
-              {formatDate(item.tanggalMulai) || ''} - {formatDate(item.tanggalSelesai) || ''}{' '}
+              {safeFormatDate(item.tanggalMulai)} - {safeFormatDate(item.tanggalSelesai)}
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
