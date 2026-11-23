@@ -1,0 +1,99 @@
+name: Preview Deployment
+
+on:
+  push:
+    branches: [preview]
+  pull_request:
+    branches: [preview]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  deployments: write
+  statuses: write
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run database seed
+        run: pnpm run seed:preview
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PREVIEW_PAYLOAD_SECRET }}
+          NEXT_PUBLIC_SERVER_URL: ${{ secrets.PREVIEW_SERVER_URL }}
+          SUPABASE_S3_BUCKET: ${{ secrets.PREVIEW_SUPABASE_S3_BUCKET }}
+          SUPABASE_S3_ACCESS_KEY_ID: ${{ secrets.PREVIEW_SUPABASE_S3_ACCESS_KEY_ID }}
+          SUPABASE_S3_SECRET_ACCESS_KEY: ${{ secrets.PREVIEW_SUPABASE_S3_SECRET_ACCESS_KEY }}
+          SUPABASE_S3_REGION: ${{ secrets.PREVIEW_SUPABASE_S3_REGION }}
+          SUPABASE_S3_ENDPOINT: ${{ secrets.PREVIEW_SUPABASE_S3_ENDPOINT }}
+          GOOGLE_CLIENT_ID: ${{ secrets.PREVIEW_GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.PREVIEW_GOOGLE_CLIENT_SECRET }}
+          FORCE_SEED: 'true'
+
+      - name: Build application
+        run: pnpm run build
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PREVIEW_PAYLOAD_SECRET }}
+          NEXT_PUBLIC_SERVER_URL: ${{ secrets.PREVIEW_SERVER_URL }}
+          SUPABASE_S3_BUCKET: ${{ secrets.PREVIEW_SUPABASE_S3_BUCKET }}
+          SUPABASE_S3_ACCESS_KEY_ID: ${{ secrets.PREVIEW_SUPABASE_S3_ACCESS_KEY_ID }}
+          SUPABASE_S3_SECRET_ACCESS_KEY: ${{ secrets.PREVIEW_SUPABASE_S3_SECRET_ACCESS_KEY }}
+          SUPABASE_S3_REGION: ${{ secrets.PREVIEW_SUPABASE_S3_REGION }}
+          SUPABASE_S3_ENDPOINT: ${{ secrets.PREVIEW_SUPABASE_S3_ENDPOINT }}
+          GOOGLE_CLIENT_ID: ${{ secrets.PREVIEW_GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.PREVIEW_GOOGLE_CLIENT_SECRET }}
+
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v25
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod=false'
+          working-directory: ./
+
+      - name: Comment preview URL on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: deployment } = await github.rest.repos.getDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deploy.outputs.deployment_id }}
+            });
+            
+            const previewUrl = deployment.environment_url;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `🚀 **Preview Deployment Ready!**\n\n🔗 **Preview URL:** ${previewUrl}\n\n---\n*This preview is automatically updated on every push to the \`preview\` branch.*`
+            });
